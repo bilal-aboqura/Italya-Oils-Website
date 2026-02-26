@@ -1,50 +1,52 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+- Version change: 0.0.0 → 1.0.0
+- Modified principles:
+  - [PRINCIPLE_1_NAME] → I. High-Performance Modular Code
+  - [PRINCIPLE_2_NAME] → II. Responsive UX Consistency
+  - [PRINCIPLE_3_NAME] → III. Robust Data Validation (WhatsApp Checkout)
+  - [PRINCIPLE_4_NAME] → IV. Scalable Backend Architecture
+- Removed sections: [PRINCIPLE_5_NAME]
+- Templates requiring updates:
+  - .specify/templates/plan-template.md (✅ updated)
+  - .specify/templates/spec-template.md (⚠ no changes required)
+  - .specify/templates/tasks-template.md (⚠ no changes required)
+- Follow-up TODOs: None
+-->
+
+# ItalyaOils Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. High-Performance Modular Code
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+All code MUST be organized into cohesive, self-contained modules. Components SHOULD be optimized for performance, minimizing unnecessary resource consumption and ensuring fast parsing and execution.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Responsive UX Consistency
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+The user interface MUST strictly preserve the provided HTML UI designs. All styling and layout updates MUST seamlessly support responsive behaviors across mobile, tablet, and desktop viewports without degrading the established aesthetics.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Robust Data Validation (WhatsApp Checkout)
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+The WhatsApp checkout flow is a critical conversion path. All user inputs MUST be rigorously validated on the client side before submission. Validation logic MUST ensure data completeness and proper formatting to prevent broken or malformed checkout messages.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Scalable Backend Architecture
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Backend services MUST be designed to handle bulk data operations efficiently. The architecture MUST support dynamic content injection, ensuring that as data scales, system responsiveness and stability are maintained.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Technology Stack & Standards
+
+- **Frontend**: HTML/CSS/JS (Vanilla or selected framework, preserving original HTML UI).
+- **Backend**: Architecture capable of bulk data operations and dynamic injection.
+- **Integration**: WhatsApp API or similar for checkout.
+
+## Development Workflow
+
+- **Code Review**: All changes MUST be reviewed for adherence to these principles.
+- **Testing**: Validation logic MUST be tested rigorously before deployment.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Amendments to these principles require documentation and must not conflict with the core goals of ItalyaOils. All PRs/reviews must verify compliance with the principles above.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-02-26 | **Last Amended**: 2026-02-26
