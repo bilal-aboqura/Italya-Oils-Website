@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -14,7 +14,7 @@ datasource db {
 // Category: Grouping entity for products
 // ==========================================
 model Category {
-  id          String    @id @default(cuid())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String    @unique
   slug        String    @unique
   description String?
@@ -30,7 +30,7 @@ model Category {
 // Product: Core entity for engine oil items
 // ==========================================
 model Product {
-  id          String    @id @default(cuid())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   sku         String    @unique
   name        String
   description String?
@@ -42,7 +42,7 @@ model Product {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  categoryId  String?
+  categoryId  String?   @db.ObjectId
   category    Category? @relation(fields: [categoryId], references: [id])
 
   @@map("products")
@@ -52,11 +52,11 @@ model Product {
 // PromoBanner: Dynamic marketing banners
 // ==========================================
 model PromoBanner {
-  id          String   @id @default(cuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   imageUrl    String
   linkUrl     String?
-  targetPage  String   // e.g., "/", "/category/engine-oils"
+  targetPage  String
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())

@@ -11,18 +11,18 @@ export async function GET(request: NextRequest) {
     const products = await prisma.product.findMany({
       where: {
         isActive: true,
-        ...(brand ? { brand: { equals: brand, mode: "insensitive" as const } } : {}),
+        ...(brand ? { brand: { equals: brand } } : {}),
         ...(category
           ? { category: { slug: { equals: category } } }
           : {}),
         ...(search
           ? {
-              OR: [
-                { name: { contains: search, mode: "insensitive" as const } },
-                { brand: { contains: search, mode: "insensitive" as const } },
-                { description: { contains: search, mode: "insensitive" as const } },
-              ],
-            }
+            OR: [
+              { name: { contains: search } },
+              { brand: { contains: search } },
+              { description: { contains: search } },
+            ],
+          }
           : {}),
       },
       include: {

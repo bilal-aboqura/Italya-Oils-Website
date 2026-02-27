@@ -15,32 +15,38 @@ export default function ImportProductsPage() {
       </div>
 
       <div className="card p-5 space-y-3 text-sm">
-        <h3 className="font-bold text-white">تنسيق الملف المطلوب</h3>
+        <h3 className="font-bold text-white">تنسيق الملف المتوقع</h3>
+        <p className="text-xs text-gray-500">
+          يجب أن يكون الصف الثالث في الملف هو صف العناوين، والبيانات تبدأ من الصف الرابع.
+        </p>
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-dark-500 text-gray-400">
-              <th className="text-start py-2">العمود</th>
+              <th className="text-start py-2">عنوان العمود</th>
               <th className="text-start py-2">مطلوب</th>
-              <th className="text-start py-2">ملاحظة</th>
+              <th className="text-start py-2">يُحفظ كـ</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-dark-500 text-gray-300">
             {[
-              ["SKU", "نعم ✓", "رمز فريد لكل منتج"],
-              ["Name", "نعم ✓", "اسم المنتج"],
-              ["Price", "نعم ✓", "السعر بالأرقام (مثال: 45.99)"],
-              ["Brand", "لا", "العلامة التجارية"],
-              ["Description", "لا", "وصف المنتج"],
-              ["Viscosity", "لا", "اللزوجة (مثال: 5W-30)"],
+              ["رقم الصنف", "نعم ✓", "SKU — رمز فريد لكل منتج"],
+              ["اسم الصنف", "نعم ✓", "Name — اسم المنتج"],
+              ["سعر البيع", "نعم ✓", "Price — السعر بالأرقام"],
+              ["KM", "لا", "Viscosity — اللزوجة (مثال: 10,000KM)"],
+              ["التصنيف", "لا", "Category — تصنيف المنتج"],
+              ["باركود", "لا", "يُقرأ للمرجعية فقط"],
             ].map(([col, req, note]) => (
               <tr key={col}>
-                <td className="py-2 font-mono text-primary-400">{col}</td>
+                <td className="py-2 font-mono text-primary-400" dir="rtl">{col}</td>
                 <td className="py-2">{req}</td>
                 <td className="py-2 text-gray-400">{note}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        <p className="text-xs text-gray-500 pt-1">
+          💡 إذا كان رقم الصنف موجوداً مسبقاً، سيتم تحديث بياناته تلقائياً.
+        </p>
       </div>
 
       <ExcelUploader />
