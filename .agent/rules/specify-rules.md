@@ -3,6 +3,7 @@
 Auto-generated from all feature plans. Last updated: 2026-02-26
 
 ## Active Technologies
+- [if applicable, e.g., PostgreSQL, CoreData, files or N/A] (001-bulk-excel-import)
 
 - [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION] (001-whatsapp-ecommerce)
 
@@ -23,6 +24,7 @@ cd src; pytest; ruff check .
 [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]: Follow standard conventions
 
 ## Recent Changes
+- 001-bulk-excel-import: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 
 - 001-whatsapp-ecommerce: Added [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION] + [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
 

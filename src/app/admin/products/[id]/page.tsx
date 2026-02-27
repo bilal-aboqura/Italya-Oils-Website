@@ -10,6 +10,11 @@ export default async function ProductEditPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
+  // MongoDB ObjectIds are exactly 24 hex characters.
+  // Stale CUID IDs from the old SQLite DB will fail this check gracefully.
+  if (!/^[a-f\d]{24}$/i.test(id)) notFound();
+
   const [product, categories] = await Promise.all([
     prisma.product.findUnique({
       where: { id },
