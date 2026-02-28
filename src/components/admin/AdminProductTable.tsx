@@ -4,16 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-interface Product {
-  id: string;
-  sku: string;
-  name: string;
-  price: number;
-  brand: string | null;
-  imageUrl: string | null;
-  categoryId: string | null;
-  isActive: boolean;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ProductWithCategory = any;
 
 interface Category {
   id: string;
@@ -21,7 +13,7 @@ interface Category {
 }
 
 interface AdminProductTableProps {
-  products: (Product & { category: { name: string } | null })[];
+  products: ProductWithCategory[];
   categories: Category[];
 }
 
@@ -75,6 +67,12 @@ export default function AdminProductTable({ products, categories }: AdminProduct
     }
   };
 
+  const fmt = (n: number | null, decimals = 2) =>
+    n != null ? n.toFixed(decimals) : <span className="text-gray-600">—</span>;
+
+  const str = (s: string | null) =>
+    s ?? <span className="text-gray-600">—</span>;
+
   return (
     <div className="space-y-4">
       {/* Bulk Actions */}
@@ -107,12 +105,12 @@ export default function AdminProductTable({ products, categories }: AdminProduct
         <p className="text-sm p-3 card animate-fade-in">{message}</p>
       )}
 
-      {/* Table */}
-      <div className="card overflow-hidden">
-        <table className="w-full text-sm">
+      {/* Table – horizontally scrollable */}
+      <div className="card overflow-x-auto">
+        <table className="w-full text-sm whitespace-nowrap">
           <thead>
             <tr className="border-b border-dark-500 text-gray-400 text-xs uppercase">
-              <th className="py-3 px-4 text-start">
+              <th className="py-3 px-3 text-start sticky left-0 bg-dark-800 z-10">
                 <input
                   type="checkbox"
                   checked={selected.size === products.length && products.length > 0}
@@ -120,18 +118,31 @@ export default function AdminProductTable({ products, categories }: AdminProduct
                   className="rounded"
                 />
               </th>
-              <th className="py-3 px-4 text-start">المنتج</th>
-              <th className="py-3 px-4 text-start">SKU</th>
-              <th className="py-3 px-4 text-start">الفئة</th>
-              <th className="py-3 px-4 text-start">السعر</th>
-              <th className="py-3 px-4 text-start">الصورة</th>
-              <th className="py-3 px-4 text-start">الإجراءات</th>
+              {/* Core */}
+              <th className="py-3 px-3 text-start">المنتج</th>
+              <th className="py-3 px-3 text-start">رقم الصنف</th>
+              <th className="py-3 px-3 text-start">التصنيف</th>
+              {/* Quantities & Prices */}
+              <th className="py-3 px-3 text-start">الكمية</th>
+              <th className="py-3 px-3 text-start">KM</th>
+              <th className="py-3 px-3 text-start">سعر البيع</th>
+              <th className="py-3 px-3 text-start">م. سعر الشراء</th>
+              <th className="py-3 px-3 text-start">آخر سعر شراء</th>
+              {/* Meta */}
+              <th className="py-3 px-3 text-start">باركود</th>
+              <th className="py-3 px-3 text-start">كود الصنف 1</th>
+              <th className="py-3 px-3 text-start">بلد المنشأ</th>
+              <th className="py-3 px-3 text-start">الوحدة</th>
+              {/* Actions */}
+              <th className="py-3 px-3 text-start">صورة</th>
+              <th className="py-3 px-3 text-start">إجراء</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-dark-500">
             {products.map((product) => (
               <tr key={product.id} className="hover:bg-dark-700/40 transition-colors">
-                <td className="py-3 px-4">
+                {/* Checkbox */}
+                <td className="py-3 px-3 sticky left-0 bg-dark-800">
                   <input
                     type="checkbox"
                     checked={selected.has(product.id)}
@@ -139,37 +150,71 @@ export default function AdminProductTable({ products, categories }: AdminProduct
                     className="rounded"
                   />
                 </td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-dark-600 overflow-hidden flex-shrink-0">
+
+                {/* Product name + image */}
+                <td className="py-3 px-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-dark-600 overflow-hidden flex-shrink-0">
                       {product.imageUrl ? (
-                        <Image src={product.imageUrl} alt={product.name} width={36} height={36} className="w-full h-full object-cover" />
+                        <Image src={product.imageUrl} alt={product.name} width={32} height={32} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-xs text-gray-600">🛢️</div>
                       )}
                     </div>
-                    <span className="font-medium truncate max-w-[180px]">{product.name}</span>
+                    <span className="font-medium truncate max-w-[160px]">{product.name}</span>
                   </div>
                 </td>
-                <td className="py-3 px-4 text-gray-500 font-mono text-xs">{product.sku}</td>
-                <td className="py-3 px-4">
+
+                {/* SKU */}
+                <td className="py-3 px-3 text-gray-400 font-mono text-xs">{product.sku}</td>
+
+                {/* Category */}
+                <td className="py-3 px-3">
                   {product.category ? (
                     <span className="badge badge-primary">{product.category.name}</span>
                   ) : (
                     <span className="badge badge-muted">غير محدد</span>
                   )}
                 </td>
-                <td className="py-3 px-4 font-bold text-primary-400">
-                  {product.price.toFixed(2)} ر.س
-                </td>
-                <td className="py-3 px-4">
+
+                {/* Total Quantity */}
+                <td className="py-3 px-3 text-gray-300">{fmt(product.totalQuantity, 0)}</td>
+
+                {/* KM / Viscosity */}
+                <td className="py-3 px-3 text-gray-400 text-xs">{str(product.viscosity)}</td>
+
+                {/* Sale Price */}
+                <td className="py-3 px-3 font-bold text-primary-400">{product.price.toFixed(2)}</td>
+
+                {/* Avg Purchase Price */}
+                <td className="py-3 px-3 text-gray-300">{fmt(product.avgPurchasePrice)}</td>
+
+                {/* Last Purchase Price */}
+                <td className="py-3 px-3 text-gray-300">{fmt(product.lastPurchasePrice)}</td>
+
+                {/* Barcode */}
+                <td className="py-3 px-3 font-mono text-xs text-gray-400">{str(product.barcode)}</td>
+
+                {/* Item Code */}
+                <td className="py-3 px-3 font-mono text-xs text-gray-400">{str(product.itemCode)}</td>
+
+                {/* Country of Origin */}
+                <td className="py-3 px-3 text-gray-400 text-xs">{str(product.countryOfOrigin)}</td>
+
+                {/* Unit */}
+                <td className="py-3 px-3 text-gray-400 text-xs">{str(product.unit)}</td>
+
+                {/* Image badge */}
+                <td className="py-3 px-3">
                   {product.imageUrl ? (
                     <span className="badge badge-success">✓</span>
                   ) : (
                     <span className="badge badge-muted">مفقودة</span>
                   )}
                 </td>
-                <td className="py-3 px-4">
+
+                {/* Actions */}
+                <td className="py-3 px-3">
                   <a
                     href={`/admin/products/${product.id}`}
                     className="text-xs text-primary-400 hover:text-primary-300 font-medium"

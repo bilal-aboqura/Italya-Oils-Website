@@ -30,20 +30,29 @@ model Category {
 // Product: Core entity for engine oil items
 // ==========================================
 model Product {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  sku         String    @unique
-  name        String
-  description String?
-  price       Float
-  brand       String?
-  viscosity   String?
-  imageUrl    String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  sku               String    @unique
+  name              String
+  description       String?
+  price             Float                    // سعر البيع
+  brand             String?
+  viscosity         String?                  // KM
+  imageUrl          String?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  categoryId  String?   @db.ObjectId
-  category    Category? @relation(fields: [categoryId], references: [id])
+  // Extra columns from Excel
+  totalQuantity     Float?                   // إجمالى الكمية
+  avgPurchasePrice  Float?                   // متوسط سعر الشراء
+  lastPurchasePrice Float?                   // آخر سعر شراء
+  barcode           String?                  // باركود
+  itemCode          String?                  // كود الصنف 1
+  countryOfOrigin   String?                  // بلد المنشاءة
+  unit              String?                  // الوحدة
+
+  categoryId        String?   @db.ObjectId
+  category          Category? @relation(fields: [categoryId], references: [id])
 
   @@map("products")
 }
