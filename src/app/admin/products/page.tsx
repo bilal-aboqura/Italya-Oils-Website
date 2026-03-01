@@ -2,17 +2,34 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Package, Upload, Plus } from "lucide-react";
 import AdminProductTable from "@/components/admin/AdminProductTable";
+import AddCategoryModal from "@/components/admin/AddCategoryModal";
+import Pagination from "@/components/admin/Pagination";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminProductsPage() {
-  const [products, categories] = await Promise.all([
+const PAGE_SIZE = 50;
+
+interface Props {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function AdminProductsPage({ searchParams }: Props) {
+  const { page: pageParam } = await searchParams;
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const skip = (currentPage - 1) * PAGE_SIZE;
+
+  const [products, totalCount, categories] = await Promise.all([
     prisma.product.findMany({
       include: { category: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
+      skip,
+      take: PAGE_SIZE,
     }),
+    prisma.product.count(),
     prisma.category.findMany({ orderBy: { name: "asc" } }),
   ]);
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
     <div className="space-y-6">
@@ -24,10 +41,12 @@ export default async function AdminProductsPage() {
             المنتجات
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            {products.length} منتج في قاعدة البيانات
+            {totalCount} منتج في قاعدة البيانات
           </p>
         </div>
         <div className="flex gap-3">
+          {/* Add Category Button */}
+          <AddCategoryModal />
           <Link href="/admin/products/import" className="btn-secondary gap-2 text-sm">
             <Upload className="w-4 h-4" />
             استيراد Excel
@@ -41,6 +60,15 @@ export default async function AdminProductsPage() {
 
       {/* Table */}
       <AdminProductTable products={products} categories={categories} />
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalCount}
+        pageSize={PAGE_SIZE}
+      />
     </div>
   );
 }
+
