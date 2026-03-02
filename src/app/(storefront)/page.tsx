@@ -4,6 +4,7 @@ import ProductList from "@/components/ui/ProductList";
 import PromoCarousel from "@/components/ui/PromoCarousel";
 import Pagination from "@/components/admin/Pagination";
 import BrandRows from "@/components/ui/BrandRows";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -55,12 +56,16 @@ export default async function StorefrontPage({
   const uniqueBrands = brandsRaw.map((b) => b.brand).filter(Boolean) as string[];
 
   // ── When filtering: paginated list ────────────────────────────────
-  let products: Awaited<ReturnType<typeof prisma.product.findMany>> = [];
+  type StorefrontProduct = Awaited<ReturnType<typeof prisma.product.findMany>>[0] & {
+    category: { name: string; slug: string } | null;
+  };
+
+  let products: StorefrontProduct[] = [];
   let totalCount = 0;
   let totalPages = 0;
 
   // ── When no filter: grouped brand rows (5 per brand) ─────────────
-  let brandGroups: { brand: string; products: typeof products }[] = [];
+  let brandGroups: { brand: string; products: StorefrontProduct[] }[] = [];
 
   if (isFiltering) {
     [products, totalCount] = await Promise.all([
@@ -75,15 +80,24 @@ export default async function StorefrontPage({
     ]);
     totalPages = Math.ceil(totalCount / PAGE_SIZE);
   } else {
-    // Fetch top brands and 5 products each
-    const brandsForRows = uniqueBrands.slice(0, 20); // max 20 brand rows
+    // Fetch top 4 brands with the most active products
+    const topBrandsQuery = await prisma.product.groupBy({
+      by: ['brand'],
+      _count: { brand: true },
+      where: { brand: { not: null }, isActive: true },
+      orderBy: { _count: { brand: 'desc' } },
+      take: 4,
+    });
+
+    const brandsForRows = topBrandsQuery.map((b) => b.brand).filter(Boolean) as string[];
+
     brandGroups = await Promise.all(
       brandsForRows.map(async (brand) => {
         const brandProducts = await prisma.product.findMany({
           where: { brand, isActive: true },
           include: { category: { select: { name: true, slug: true } } },
           orderBy: { createdAt: "desc" },
-          take: 5,
+          take: 10,
         });
         return { brand, products: brandProducts };
       })
@@ -94,9 +108,14 @@ export default async function StorefrontPage({
     <div className="flex h-full grow flex-col">
       <Navbar />
 
+      {/* Top Strip Promo */}
+      <div className="w-full mx-auto max-w-[1400px] px-4 lg:px-8 mt-6">
+        <PromoCarousel placement="home_top_strip" aspectRatio="8/1" />
+      </div>
+
       <main className="flex-1 w-full mx-auto max-w-[1400px] px-4 lg:px-8 py-6 space-y-10">
-        {/* Promo Carousel */}
-        <PromoCarousel />
+        {/* Main Hero Carousel */}
+        <PromoCarousel placement="home_hero" aspectRatio="16/9" />
 
         {/* ── HERO ─────────────────────────────── */}
         {!isFiltering && (
@@ -138,17 +157,14 @@ export default async function StorefrontPage({
 
             {/* Side Cards */}
             <div className="lg:col-span-5 grid grid-rows-2 gap-6 h-[480px] lg:h-full">
-              {/* Promo banner card */}
+              {/* Promo banner card (Dynamic) */}
               <div className="row-span-1 bg-slate-100 rounded-3xl relative overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-100" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-6 right-6 text-white z-10">
-                  <div className="bg-brand-orange px-4 py-2 rounded-lg shadow-lg inline-block mb-2">
-                    <span className="font-bold text-sm">عرض خاص</span>
-                  </div>
-                  <h3 className="font-black text-xl">باقة تغيير الزيت الشاملة</h3>
+                <div className="absolute inset-0 z-20">
+                  <PromoCarousel placement="home_side" aspectRatio="1/1" />
                 </div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-slate-300 group-hover:scale-110 transition-transform duration-500">
+                {/* Fallback pattern underneath */}
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-100" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-slate-300">
                   <span className="material-symbols-outlined text-[120px]">oil_barrel</span>
                 </div>
               </div>
@@ -186,16 +202,46 @@ export default async function StorefrontPage({
         <section className="py-4" id="products">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Sidebar */}
-            <aside className="w-full md:w-60 flex-shrink-0">
-              <div className="bg-white rounded-3xl border border-slate-100 shadow-card p-5 sticky top-24 space-y-6">
-                {/* Brands as filter */}
-                {uniqueBrands.length > 0 && (
+            <aside className="w-full md:w-64 flex-shrink-0">
+              <div className="bg-white rounded-3xl border border-slate-100 shadow-card p-6 sticky top-24 space-y-8">
+                
+                {/* 1. Main Categories Section */}
+                {categories.length > 0 && (
                   <div>
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                      العلامة التجارية
+                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">
+                      الأقسام الرئيسية
                     </h3>
                     <div className="space-y-1">
-                      <FilterLink href="/?" label="جميع المنتجات" active={!params.brand && !params.category && !params.search} />
+                      <FilterLink 
+                        href="/?" 
+                        label="كل المعروض" 
+                        active={!params.brand && !params.category && !params.search} 
+                      />
+                      {categories.map((cat) => (
+                        <FilterLink
+                          key={cat.id}
+                          href={`/?category=${cat.slug}`}
+                          label={cat.name}
+                          active={params.category === cat.slug}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. Brands Section */}
+                {uniqueBrands.length > 0 && (
+                  <div className="pt-2 border-t border-slate-50">
+                    <div className="flex items-center justify-between mb-4 px-1">
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
+                        العلامات التجارية
+                      </h3>
+                      <span className="text-[10px] bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-md font-bold">
+                        {uniqueBrands.length}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-1 max-h-[400px] overflow-y-auto pr-2 customize-scrollbar">
                       {uniqueBrands.map((brand) => (
                         <FilterLink
                           key={brand}
@@ -208,24 +254,17 @@ export default async function StorefrontPage({
                   </div>
                 )}
 
-                {/* Categories */}
-                {categories.length > 0 && (
-                  <div>
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                      الفئات
-                    </h3>
-                    <div className="space-y-1">
-                      {categories.map((cat) => (
-                        <FilterLink
-                          key={cat.id}
-                          href={`/?category=${cat.slug}`}
-                          label={cat.name}
-                          active={params.category === cat.slug}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* Helpful Hint */}
+                <div className="p-4 bg-brand-navy/5 rounded-2xl border border-brand-navy/5">
+                    <p className="text-[10px] text-brand-navy/40 leading-relaxed font-bold text-center">
+                        itallyaOils · جودة أصلية
+                    </p>
+                </div>
+                
+                {/* Sidebar Promo */}
+                <div className="pt-2">
+                  <PromoCarousel placement="sidebar_promo" aspectRatio="1/1" />
+                </div>
               </div>
             </aside>
 
@@ -277,7 +316,14 @@ export default async function StorefrontPage({
                 </>
               ) : (
                 /* ── Default view: brand rows ── */
-                <BrandRows groups={brandGroups} />
+                <>
+                  <BrandRows groups={brandGroups} />
+                  
+                  {/* Middle Banner inserted within product section */}
+                  <div className="mt-10">
+                    <PromoCarousel placement="home_middle" aspectRatio="21/9" />
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -325,13 +371,23 @@ export default async function StorefrontPage({
                   </a>
                 </div>
               </div>
-              {/* Image placeholder */}
+              {/* Image composition */}
               <div className="relative h-[400px] lg:h-[500px]">
-                <div className="absolute top-10 right-10 w-64 h-80 bg-slate-200 rounded-2xl shadow-xl z-20 border-4 border-white hover:-translate-y-2 transition-transform duration-500 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-slate-400 text-[80px]">oil_barrel</span>
+                <div className="absolute top-10 right-10 w-64 h-80 bg-slate-200 rounded-2xl shadow-xl z-20 border-4 border-white hover:-translate-y-2 transition-transform duration-500 overflow-hidden">
+                  <Image 
+                    src="/images/storefront/trust-1.png" 
+                    alt="Premium Engine Oils" 
+                    fill 
+                    className="object-cover"
+                  />
                 </div>
-                <div className="absolute bottom-10 left-10 w-56 h-56 bg-slate-100 rounded-2xl shadow-xl z-30 border-4 border-white hover:-translate-y-2 transition-transform duration-500 delay-100 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-slate-400 text-[60px]">local_gas_station</span>
+                <div className="absolute bottom-10 left-10 w-56 h-56 bg-slate-100 rounded-2xl shadow-xl z-30 border-4 border-white hover:-translate-y-2 transition-transform duration-500 delay-100 overflow-hidden">
+                  <Image 
+                    src="/images/storefront/trust-2.png" 
+                    alt="Trusted Car Maintenance" 
+                    fill 
+                    className="object-cover"
+                  />
                 </div>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-orange rounded-full opacity-20 blur-2xl" />
                 <div className="absolute bottom-20 left-32 w-48 h-48 bg-brand-navy rounded-full opacity-10 blur-2xl" />
@@ -341,9 +397,12 @@ export default async function StorefrontPage({
           </section>
         )}
 
-        {/* ── CTA SECTION ────────────────────────── */}
+        {/* ── CTA SECTION & BOTTOM PROMO ────────────────────────── */}
         {!isFiltering && (
-          <section className="bg-brand-orange rounded-3xl p-8 lg:p-16 text-center text-white relative overflow-hidden shadow-vibrant">
+          <>
+            <PromoCarousel placement="home_bottom" aspectRatio="4/1" />
+            
+            <section className="bg-brand-orange rounded-3xl p-8 lg:p-16 text-center text-white relative overflow-hidden shadow-vibrant">
             <div
               className="absolute inset-0 opacity-10"
               style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px)", backgroundSize: "24px 24px" }}
@@ -373,6 +432,7 @@ export default async function StorefrontPage({
               </div>
             </div>
           </section>
+          </>
         )}
       </main>
 

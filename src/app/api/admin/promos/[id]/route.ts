@@ -1,6 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// GET single promo banner
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const banner = await prisma.promoBanner.findUnique({ where: { id } });
+    if (!banner) {
+      return NextResponse.json({ error: { code: "NOT_FOUND", message: "Banner not found." } }, { status: 404 });
+    }
+    return NextResponse.json({ banner });
+  } catch (err) {
+    console.error("[GET /api/admin/promos/[id]]", err);
+    return NextResponse.json({ error: { code: "INTERNAL_ERROR", message: "Failed to fetch promo." } }, { status: 500 });
+  }
+}
+
 // PATCH update promo banner
 export async function PATCH(
   request: NextRequest,

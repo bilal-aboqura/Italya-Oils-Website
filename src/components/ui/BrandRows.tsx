@@ -51,15 +51,15 @@ export default function BrandRows({ groups }: { groups: BrandGroup[] }) {
                         </a>
                     </div>
 
-                    {/* 5-product horizontal row */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {/* Horizontal scrolling row */}
+                    <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory customize-scrollbar">
                         {products.map((product) => (
                             <div
                                 key={product.id}
-                                className="group bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-md hover:border-brand-orange/30 transition-all duration-300 flex flex-col"
+                                className="snap-start shrink-0 w-[180px] sm:w-[220px] md:w-[240px] group bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-md hover:border-brand-orange/30 transition-all duration-300 flex flex-col"
                             >
                                 {/* Image */}
-                                <div className="relative h-36 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+                                <div className="relative h-36 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden shrink-0">
                                     {product.imageUrl ? (
                                         <Image
                                             src={product.imageUrl}

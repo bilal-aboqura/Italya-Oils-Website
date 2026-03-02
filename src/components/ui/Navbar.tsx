@@ -23,9 +23,8 @@ export default function Navbar() {
         <nav className="hidden md:flex flex-1 justify-center gap-2">
           {[
             { label: "الرئيسية", href: "/" },
-            { label: "الماركات", href: "/?section=brands" },
-            { label: "الزيوت الاصطناعية", href: "/?category=syntetic" },
-            { label: "فلاتر وزيوت", href: "/?category=filters" },
+            { label: "الزيوت الاصطناعية", href: "/?category=engine-oils" },
+            { label: "فلاتر وزيوت", href: "/?category=filters-and-parts" },
           ].map((item) => (
             <a
               key={item.label}

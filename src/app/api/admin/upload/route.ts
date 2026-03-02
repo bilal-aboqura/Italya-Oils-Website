@@ -41,18 +41,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      return NextResponse.json(
+        { error: { code: "SERVER_ERROR", message: "Cloudinary credentials not set in .env" } },
+        { status: 500 }
+      );
+    }
+
     const ext = file.type.split("/")[1];
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const uploadDir = join(process.cwd(), "public", "uploads");
-
-    // Ensure upload directory exists
-    await mkdir(uploadDir, { recursive: true });
-
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(join(uploadDir, filename), buffer);
+    const base64Data = `data:${file.type};base64,${buffer.toString("base64")}`;
 
-    return NextResponse.json({ url: `/uploads/${filename}` });
+    // Compute signature using crypto for signed upload
+    const crypto = await import("crypto");
+    const timestamp = Math.round(new Date().getTime() / 1000).toString();
+    const signature = crypto.createHash("sha1").update(`timestamp=${timestamp}${apiSecret}`).digest("hex");
+
+    // Send payload directly to Cloudinary via REST
+    const cloudFormData = new FormData();
+    cloudFormData.append("file", base64Data);
+    cloudFormData.append("api_key", apiKey);
+    cloudFormData.append("timestamp", timestamp);
+    cloudFormData.append("signature", signature);
+
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    
+    const response = await fetch(cloudinaryUrl, {
+      method: "POST",
+      body: cloudFormData,
+    });
+    
+    if (!response.ok) {
+      const errResponse = await response.json();
+      console.error("Cloudinary upload error:", errResponse);
+      throw new Error(errResponse?.error?.message || "Failed to upload to Cloudinary");
+    }
+
+    const data = await response.json();
+
+    return NextResponse.json({ url: data.secure_url });
   } catch (err) {
     console.error("[POST /api/admin/upload]", err);
     return NextResponse.json(
