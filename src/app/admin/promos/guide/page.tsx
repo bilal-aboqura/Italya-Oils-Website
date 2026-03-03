@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, LayoutDashboard, Plus } from "lucide-react";
+import { ADMIN_PATH } from "@/lib/admin-config";
 
 const SLOTS = [
   {
@@ -69,7 +70,7 @@ export default function SlotGuidePage() {
     <div className="space-y-8 pb-10 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href="/admin/promos" className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500">
+        <Link href={`${ADMIN_PATH}/promos`} className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500">
           <ArrowRight className="w-5 h-5" />
         </Link>
         <div>
@@ -94,7 +95,7 @@ export default function SlotGuidePage() {
             <div className="size-2 rounded-full bg-brand-orange" />
             <div className="w-12 h-2 bg-white/20 rounded-full" />
             <div className="mx-auto flex gap-4">
-              {[1,2,3].map(i=><div key={i} className="w-10 h-2 bg-white/20 rounded-full" />)}
+              {[1, 2, 3].map(i => <div key={i} className="w-10 h-2 bg-white/20 rounded-full" />)}
             </div>
           </div>
 
@@ -110,7 +111,7 @@ export default function SlotGuidePage() {
             </div>
             <div className="col-span-2 grid grid-rows-2 gap-3">
               <div className="bg-teal-100 border-2 border-dashed border-teal-400 rounded-xl flex items-center justify-center">
-                <span className="text-[10px] font-bold text-teal-600 text-center">home_side<br/>1:1</span>
+                <span className="text-[10px] font-bold text-teal-600 text-center">home_side<br />1:1</span>
               </div>
               <div className="bg-slate-100 rounded-xl flex items-center justify-center">
                 <span className="text-[10px] text-slate-400 font-bold">محتوى ثابت</span>
@@ -123,7 +124,7 @@ export default function SlotGuidePage() {
             <div className="col-span-1 space-y-2">
               <div className="h-16 bg-slate-100 rounded-lg" />
               <div className="h-24 bg-yellow-100 border-2 border-dashed border-yellow-400 rounded-lg flex items-center justify-center">
-                <span className="text-[9px] font-bold text-yellow-600 text-center">sidebar_promo<br/>1:1</span>
+                <span className="text-[9px] font-bold text-yellow-600 text-center">sidebar_promo<br />1:1</span>
               </div>
             </div>
             <div className="col-span-4 space-y-2">
@@ -172,7 +173,7 @@ export default function SlotGuidePage() {
               <span className="text-[10px] font-bold opacity-70">{slot.recommend}</span>
             </div>
             <Link
-              href={`/admin/promos/new?slot=${slot.id}`}
+              href={`${ADMIN_PATH}/promos/new?slot=${slot.id}`}
               className="w-full mt-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-white/60 hover:bg-white text-xs font-bold transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
