@@ -7,7 +7,7 @@ services:
     container_name: italyaoils_app
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "4000:3000"
     environment:
       - NODE_ENV=production
       # All secrets are loaded from the .env file on the host — never committed to git
