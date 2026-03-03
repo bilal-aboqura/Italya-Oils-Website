@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       { protocol: "http", hostname: "localhost" },
+      { protocol: "https", hostname: "elitalyea.com" },
+      { protocol: "https", hostname: "www.elitalyea.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
