@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Image as ImageIcon, Plus, LayoutDashboard } from "lucide-react";
 import PromoBannerCard from "@/components/admin/PromoBannerCard";
 import Link from "next/link";
+import { ADMIN_PATH } from "@/lib/admin-config";
 
 export const dynamic = "force-dynamic";
 
@@ -64,14 +65,14 @@ export default async function AdminPromosPage() {
         </div>
         <div className="flex gap-3">
           <Link
-            href="/admin/promos/guide"
+            href={`${ADMIN_PATH}/promos/guide`}
             className="px-4 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center gap-2 text-sm"
           >
             <LayoutDashboard className="w-4 h-4" />
             خريطة الأماكن
           </Link>
           <Link
-            href="/admin/promos/new"
+            href={`${ADMIN_PATH}/promos/new`}
             className="px-4 py-2.5 rounded-xl font-bold text-white bg-brand-orange hover:bg-orange-600 transition-colors flex items-center gap-2 text-sm shadow-md shadow-brand-orange/30"
           >
             <Plus className="w-4 h-4" />
@@ -91,7 +92,7 @@ export default async function AdminPromosPage() {
             أضف أول بانر ترويجي لتظهر في واجهة المتجر
           </p>
           <Link
-            href="/admin/promos/new"
+            href={`${ADMIN_PATH}/promos/new`}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white bg-brand-orange hover:bg-orange-600 transition-colors text-sm shadow-md shadow-brand-orange/30"
           >
             <Plus className="w-4 h-4" />
@@ -117,7 +118,7 @@ export default async function AdminPromosPage() {
                 {slotBanners.length} {slotBanners.length === 1 ? "بانر" : "بانرات"}
               </span>
               <a
-                href={`/admin/promos/new?slot=${slotId}`}
+                href={`${ADMIN_PATH}/promos/new?slot=${slotId}`}
                 className="text-xs font-bold text-brand-orange hover:text-orange-600 transition-colors flex items-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5" />

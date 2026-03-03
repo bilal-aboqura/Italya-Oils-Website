@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Image as ImageIcon, ArrowRight, Upload, Loader2, Save } from "lucide-react";
 import Link from "next/link";
@@ -8,6 +8,8 @@ import Image from "next/image";
 
 import ImageCropperModal from "@/components/admin/ImageCropperModal";
 import SlotGuideModal from "@/components/admin/SlotGuideModal";
+
+const ADMIN = process.env.NEXT_PUBLIC_ADMIN_PATH ?? "/admin-panel";
 
 const SLOTS = [
   { id: "home_top_strip", label: "الشريط العلوي الرفيع (8:1)", aspect: 8 / 1, recommend: "يفضل 1920x240" },
@@ -18,7 +20,8 @@ const SLOTS = [
   { id: "home_bottom", label: "البانر السفلي المستطيل (4:1)", aspect: 4 / 1, recommend: "يفضل 1200x300" },
 ];
 
-export default function NewPromoPage() {
+// ── Inner component that safely uses useSearchParams ──────────────────────────
+function NewPromoForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,7 +30,7 @@ export default function NewPromoPage() {
 
   // Cropper states
   const [imageToCrop, setImageToCrop] = useState<string | null>(null);
-  
+
   // Guide state
   const [isGuideOpen, setIsGuideOpen] = useState(false);
 
@@ -47,7 +50,7 @@ export default function NewPromoPage() {
     }
   }, [searchParams]);
 
-  const activeSlot = SLOTS.find(s => s.id === formData.targetPage) || SLOTS[0];
+  const activeSlot = SLOTS.find((s) => s.id === formData.targetPage) || SLOTS[0];
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,7 +58,7 @@ export default function NewPromoPage() {
 
     // Reset old cropper instance if selecting new file
     if (imageToCrop) {
-        URL.revokeObjectURL(imageToCrop);
+      URL.revokeObjectURL(imageToCrop);
     }
     setImageToCrop(URL.createObjectURL(file));
   };
@@ -85,7 +88,6 @@ export default function NewPromoPage() {
     }
   };
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.imageUrl) {
@@ -106,7 +108,7 @@ export default function NewPromoPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error?.message || "Failed to create promo");
 
-      router.push("/admin/promos");
+      router.push(`${ADMIN}/promos`);
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -125,8 +127,8 @@ export default function NewPromoPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-10">
       <div className="flex items-center gap-4">
-        <Link 
-          href="/admin/promos" 
+        <Link
+          href={`${ADMIN}/promos`}
           className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500"
         >
           <ArrowRight className="w-5 h-5" />
@@ -140,7 +142,7 @@ export default function NewPromoPage() {
             <p className="text-slate-500 text-sm font-medium">
               قم بإضافة بانر ترويجي لعرضه في واجهة المتجر
             </p>
-            <button 
+            <button
               onClick={() => setIsGuideOpen(true)}
               className="text-xs font-bold text-brand-navy bg-slate-100 px-3 py-1 rounded-full hover:bg-slate-200 transition-colors flex items-center gap-1"
             >
@@ -206,7 +208,7 @@ export default function NewPromoPage() {
                     ))}
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-bold text-brand-navy mb-2">الترتيب</label>
                   <input
@@ -225,65 +227,65 @@ export default function NewPromoPage() {
             </div>
 
             <div className="space-y-2">
-                <label className="block text-sm font-bold text-brand-navy">صورة البانر *</label>
-                
-                <div className="relative w-full h-48 bg-slate-50 border-2 border-dashed border-slate-200 hover:border-brand-orange/50 transition-colors rounded-2xl flex flex-col items-center justify-center overflow-hidden cursor-pointer group">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    disabled={isUploading || isSubmitting}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
-                  />
-                  
-                  {formData.imageUrl ? (
-                    <Image
-                      src={formData.imageUrl}
-                      alt="Banner Preview"
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="text-center text-slate-400 group-hover:text-brand-orange transition-colors z-10 px-4">
-                      {isUploading ? (
-                        <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-brand-orange" />
-                      ) : (
-                        <Upload className="w-8 h-8 mx-auto mb-2" />
-                      )}
-                      <span className="text-xs font-bold block">
-                        {isUploading ? "جاري الرفع..." : "انقر أو اسحب لاختيار صورة"}
-                      </span>
-                      <span className="text-[10px] font-normal mt-1 opacity-70 block">
-                        يدعم: JPG, PNG, WebP (بحد أقصى 5MB)
-                      </span>
-                    </div>
-                  )}
+              <label className="block text-sm font-bold text-brand-navy">صورة البانر *</label>
 
-                  {formData.imageUrl && !isUploading && (
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
-                      <div className="bg-white text-brand-navy px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-lg">
-                        <Upload className="w-3 h-3" />
-                         تغيير الصورة
-                      </div>
+              <div className="relative w-full h-48 bg-slate-50 border-2 border-dashed border-slate-200 hover:border-brand-orange/50 transition-colors rounded-2xl flex flex-col items-center justify-center overflow-hidden cursor-pointer group">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  disabled={isUploading || isSubmitting}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
+                />
+
+                {formData.imageUrl ? (
+                  <Image
+                    src={formData.imageUrl}
+                    alt="Banner Preview"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="text-center text-slate-400 group-hover:text-brand-orange transition-colors z-10 px-4">
+                    {isUploading ? (
+                      <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-brand-orange" />
+                    ) : (
+                      <Upload className="w-8 h-8 mx-auto mb-2" />
+                    )}
+                    <span className="text-xs font-bold block">
+                      {isUploading ? "جاري الرفع..." : "انقر أو اسحب لاختيار صورة"}
+                    </span>
+                    <span className="text-[10px] font-normal mt-1 opacity-70 block">
+                      يدعم: JPG, PNG, WebP (بحد أقصى 5MB)
+                    </span>
+                  </div>
+                )}
+
+                {formData.imageUrl && !isUploading && (
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center">
+                    <div className="bg-white text-brand-navy px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-lg">
+                      <Upload className="w-3 h-3" />
+                      تغيير الصورة
                     </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mt-2">
-                    <span className="material-symbols-outlined text-[14px] text-slate-400">info</span>
-                    <p className="text-[10px] text-slate-400 font-medium">
-                        يُفضل استخدام صور أفقية (Landscape) للحصول على أفضل عرض للتصاميم.
-                    </p>
-                </div>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="material-symbols-outlined text-[14px] text-slate-400">info</span>
+                <p className="text-[10px] text-slate-400 font-medium">
+                  يُفضل استخدام صور أفقية (Landscape) للحصول على أفضل عرض للتصاميم.
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
             <Link
-              href="/admin/promos"
+              href={`${ADMIN}/promos`}
               className="px-6 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors text-sm"
               onClick={(e) => {
-                 if(isSubmitting) e.preventDefault();
+                if (isSubmitting) e.preventDefault();
               }}
             >
               إلغاء
@@ -308,7 +310,7 @@ export default function NewPromoPage() {
           </div>
         </form>
       </div>
-      
+
       {/* Cropper Modal */}
       {imageToCrop && (
         <ImageCropperModal
@@ -320,10 +322,23 @@ export default function NewPromoPage() {
       )}
 
       {/* Guide Modal */}
-      <SlotGuideModal 
+      <SlotGuideModal
         isOpen={isGuideOpen}
         onClose={() => setIsGuideOpen(false)}
       />
     </div>
+  );
+}
+
+// ── Page export: wraps the form in Suspense for useSearchParams ───────────────
+export default function NewPromoPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-orange" />
+      </div>
+    }>
+      <NewPromoForm />
+    </Suspense>
   );
 }

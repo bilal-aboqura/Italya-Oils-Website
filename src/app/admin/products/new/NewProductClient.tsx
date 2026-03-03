@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const ADMIN = process.env.NEXT_PUBLIC_ADMIN_PATH ?? "/admin-panel";
+
 interface Category {
   id: string;
   name: string;
@@ -50,7 +52,7 @@ export default function NewProductClient({ categories }: { categories: Category[
         return;
       }
 
-      router.push("/admin/products");
+      router.push(`${ADMIN}/products`);
       router.refresh();
     } catch {
       setError("فشل الاتصال بالخادم. يرجى المحاولة مجدداً.");
@@ -193,7 +195,7 @@ export default function NewProductClient({ categories }: { categories: Category[
           )}
         </button>
         <a
-          href="/admin/products"
+          href={`${ADMIN}/products`}
           className="px-6 py-3 border border-slate-200 rounded-xl text-slate-600 font-bold hover:bg-slate-50 transition-colors text-sm flex items-center gap-2"
         >
           <span className="material-symbols-outlined text-lg">close</span>
