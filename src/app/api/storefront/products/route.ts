@@ -33,7 +33,12 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ products });
+    const response = NextResponse.json({ products });
+    response.headers.set(
+      "Cache-Control",
+      "public, s-maxage=60, stale-while-revalidate=120"
+    );
+    return response;
   } catch (err) {
     console.error("[GET /api/storefront/products]", err);
     return NextResponse.json(

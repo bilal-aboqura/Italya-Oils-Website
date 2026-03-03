@@ -1,0 +1,25 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: italyaoils:latest
+    container_name: italyaoils_app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # All secrets are loaded from the .env file on the host — never committed to git
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXT_PUBLIC_WHATSAPP_NUMBER=${NEXT_PUBLIC_WHATSAPP_NUMBER}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - ADMIN_SECRET_PATH=${ADMIN_SECRET_PATH}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/storefront/promos?targetPage=home_hero"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

@@ -8,7 +8,7 @@ import Image from "next/image";
 import Logo from "@/components/ui/Logo";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60; // ISR: rebuild in background every 60 seconds
 
 const PAGE_SIZE = 24;
 

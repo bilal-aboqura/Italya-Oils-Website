@@ -1,0 +1,14 @@
+.git
+.gitignore
+node_modules
+.next
+.env
+.env.*
+!.env.example
+*.log
+*.md
+.DS_Store
+Thumbs.db
+README.md
+check_categories.js
+prisma/migrations
