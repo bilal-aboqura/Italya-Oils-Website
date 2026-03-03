@@ -1,4 +1,15 @@
 services:
+
+  mongo:
+    image: mongo:7.0
+    container_name: italyaoils_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+    # Not exposed to the internet — only reachable inside the Docker network
+
   web:
     build:
       context: .
@@ -6,6 +17,8 @@ services:
     image: italyaoils:latest
     container_name: italyaoils_app
     restart: unless-stopped
+    depends_on:
+      - mongo
     ports:
       - "4000:3000"
     environment:
@@ -17,9 +30,20 @@ services:
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
       - ADMIN_SECRET_PATH=${ADMIN_SECRET_PATH}
+      - NEXT_PUBLIC_ADMIN_PATH=${NEXT_PUBLIC_ADMIN_PATH}
+    networks:
+      - app-network
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/storefront/promos?targetPage=home_hero"]
+      test: [ "CMD", "wget", "-qO-", "http://localhost:3000/api/storefront/promos?targetPage=home_hero" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
+volumes:
+  mongo_data:
+
+
+networks:
+  app-network:
+    driver: bridge
