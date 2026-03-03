@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/whatsapp";
 
@@ -77,21 +78,23 @@ function ProductCard({
     <div className={`group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-card hover:shadow-vibrant transition-all duration-300 flex flex-col ${colors.ring}`}>
       {/* Image */}
       <div className="relative h-52 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
-        {product.imageUrl ? (
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            fill
-            className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full gap-2">
-            <span className="material-symbols-outlined text-slate-300 text-[64px]">
-              oil_barrel
-            </span>
-            <span className="text-xs text-slate-400 font-medium">صورة قريباً</span>
-          </div>
-        )}
+        <Link href={`/products/${product.id}`} className="block relative h-full">
+          {product.imageUrl ? (
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              fill
+              className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full gap-2">
+              <span className="material-symbols-outlined text-slate-300 text-[64px]">
+                oil_barrel
+              </span>
+              <span className="text-xs text-slate-400 font-medium">صورة قريباً</span>
+            </div>
+          )}
+        </Link>
 
         {/* Brand badge overlay */}
         {product.brand && (
@@ -110,9 +113,11 @@ function ProductCard({
             {product.category.name}
           </p>
         )}
-        <h3 className="font-black text-brand-navy text-base mb-1 leading-snug line-clamp-2">
-          {product.name}
-        </h3>
+        <Link href={`/products/${product.id}`} className="block">
+          <h3 className="font-black text-brand-navy text-base mb-1 leading-snug line-clamp-2 hover:text-brand-orange transition-colors">
+            {product.name}
+          </h3>
+        </Link>
         {product.viscosity && (
           <p className="text-xs text-slate-400 mb-3">{product.viscosity}</p>
         )}

@@ -4,6 +4,7 @@ import { Package, Upload, Plus } from "lucide-react";
 import AdminProductTable from "@/components/admin/AdminProductTable";
 import AddCategoryModal from "@/components/admin/AddCategoryModal";
 import Pagination from "@/components/admin/Pagination";
+import { ADMIN_PATH } from "@/lib/admin-config";
 
 export const dynamic = "force-dynamic";
 
@@ -47,11 +48,11 @@ export default async function AdminProductsPage({ searchParams }: Props) {
         <div className="flex gap-3">
           {/* Add Category Button */}
           <AddCategoryModal />
-          <Link href="/admin/products/import" className="btn-secondary gap-2 text-sm">
+          <Link href={`${ADMIN_PATH}/products/import`} className="btn-secondary gap-2 text-sm">
             <Upload className="w-4 h-4" />
             استيراد Excel
           </Link>
-          <Link href="/admin/products/new" className="btn-primary gap-2 text-sm">
+          <Link href={`${ADMIN_PATH}/products/new`} className="btn-primary gap-2 text-sm">
             <Plus className="w-4 h-4" />
             منتج جديد
           </Link>

@@ -1,6 +1,7 @@
 import { LayoutDashboard, Package, FileSpreadsheet, Image } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { ADMIN_PATH } from "@/lib/admin-config";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +14,10 @@ export default async function AdminDashboardPage() {
   ]);
 
   const stats = [
-    { label: "المنتجات الكلية", value: productCount, icon: "inventory_2", href: "/admin/products", color: "text-brand-orange", bg: "bg-orange-50" },
-    { label: "بدون فئة", value: uncategorized, icon: "label_off", href: "/admin/products", color: "text-yellow-500", bg: "bg-yellow-50" },
-    { label: "بدون صورة", value: missingImages, icon: "hide_image", href: "/admin/products", color: "text-red-500", bg: "bg-red-50" },
-    { label: "البانرات النشطة", value: promoCount, icon: "image", href: "/admin/promos", color: "text-green-500", bg: "bg-green-50" },
+    { label: "المنتجات الكلية", value: productCount, icon: "inventory_2", href: `${ADMIN_PATH}/products`, color: "text-brand-orange", bg: "bg-orange-50" },
+    { label: "بدون فئة", value: uncategorized, icon: "label_off", href: `${ADMIN_PATH}/products`, color: "text-yellow-500", bg: "bg-yellow-50" },
+    { label: "بدون صورة", value: missingImages, icon: "hide_image", href: `${ADMIN_PATH}/products`, color: "text-red-500", bg: "bg-red-50" },
+    { label: "البانرات النشطة", value: promoCount, icon: "image", href: `${ADMIN_PATH}/promos`, color: "text-green-500", bg: "bg-green-50" },
   ];
 
   return (
@@ -45,7 +46,7 @@ export default async function AdminDashboardPage() {
       <div>
         <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">إجراءات سريعة</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link href="/admin/products/import" className="bg-white rounded-2xl border border-slate-100 shadow-card hover:shadow-vibrant hover:border-brand-orange/30 transition-all p-6 flex items-start gap-4">
+          <Link href={`${ADMIN_PATH}/products/import`} className="bg-white rounded-2xl border border-slate-100 shadow-card hover:shadow-vibrant hover:border-brand-orange/30 transition-all p-6 flex items-start gap-4">
             <div className="size-12 rounded-xl bg-orange-50 flex items-center justify-center flex-shrink-0">
               <span className="material-symbols-outlined text-brand-orange text-2xl">upload_file</span>
             </div>
@@ -54,7 +55,7 @@ export default async function AdminDashboardPage() {
               <p className="text-xs text-slate-400 mt-1">رفع ملف Excel لاستيراد المنتجات بالجملة</p>
             </div>
           </Link>
-          <Link href="/admin/promos/new" className="bg-white rounded-2xl border border-slate-100 shadow-card hover:shadow-vibrant hover:border-brand-orange/30 transition-all p-6 flex items-start gap-4">
+          <Link href={`${ADMIN_PATH}/promos/new`} className="bg-white rounded-2xl border border-slate-100 shadow-card hover:shadow-vibrant hover:border-brand-orange/30 transition-all p-6 flex items-start gap-4">
             <div className="size-12 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
               <span className="material-symbols-outlined text-green-500 text-2xl">add_photo_alternate</span>
             </div>

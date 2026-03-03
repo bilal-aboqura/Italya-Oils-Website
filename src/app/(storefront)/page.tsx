@@ -5,6 +5,7 @@ import PromoCarousel from "@/components/ui/PromoCarousel";
 import Pagination from "@/components/admin/Pagination";
 import BrandRows from "@/components/ui/BrandRows";
 import Image from "next/image";
+import Logo from "@/components/ui/Logo";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -270,35 +271,7 @@ export default async function StorefrontPage({
 
             {/* Products area */}
             <div className="flex-1 min-w-0">
-              {/* Header row */}
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-black text-xl text-brand-navy">
-                  {params.search
-                    ? `نتائج: "${params.search}"`
-                    : params.brand
-                      ? params.brand
-                      : params.category
-                        ? params.category
-                        : "جميع المنتجات"}
-                  {isFiltering && (
-                    <span className="text-slate-400 font-normal text-sm mr-2">
-                      ({totalCount})
-                    </span>
-                  )}
-                </h2>
-                <form action="/" method="GET">
-                  <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-sm focus-within:border-brand-orange transition-colors">
-                    <span className="material-symbols-outlined text-slate-400 text-lg">search</span>
-                    <input
-                      type="search"
-                      name="search"
-                      className="bg-transparent border-none outline-none text-sm text-brand-navy placeholder:text-slate-400 w-44"
-                      placeholder="ابحث عن منتج..."
-                      defaultValue={params.search}
-                    />
-                  </div>
-                </form>
-              </div>
+
 
               {/* ── Filtered view: normal paginated grid ── */}
               {isFiltering ? (
@@ -371,23 +344,30 @@ export default async function StorefrontPage({
                   </a>
                 </div>
               </div>
-              {/* Image composition */}
+              {/* Visual composition using icons instead of missing images */}
               <div className="relative h-[400px] lg:h-[500px]">
-                <div className="absolute top-10 right-10 w-64 h-80 bg-slate-200 rounded-2xl shadow-xl z-20 border-4 border-white hover:-translate-y-2 transition-transform duration-500 overflow-hidden">
-                  <Image 
-                    src="/images/storefront/trust-1.png" 
-                    alt="Premium Engine Oils" 
-                    fill 
-                    className="object-cover"
-                  />
+                <div className="absolute top-10 right-10 w-64 h-80 bg-gradient-to-br from-brand-navy to-slate-700 rounded-2xl shadow-xl z-20 border-4 border-white hover:-translate-y-2 transition-transform duration-500 overflow-hidden flex flex-col items-center justify-center gap-4 p-6 text-white">
+                  <div className="size-20 bg-white/10 rounded-2xl flex items-center justify-center border border-white/20">
+                    <span className="material-symbols-outlined text-[48px] text-brand-orange">oil_barrel</span>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-black text-lg">زيوت أصلية</p>
+                    <p className="text-slate-300 text-sm mt-1">ضمان المصنع 100%</p>
+                  </div>
+                  <div className="flex gap-2 flex-wrap justify-center">
+                    {["Mobil", "Shell", "Castrol"].map(b => (
+                      <span key={b} className="bg-white/10 text-white text-xs font-bold px-2 py-1 rounded-md">{b}</span>
+                    ))}
+                  </div>
                 </div>
-                <div className="absolute bottom-10 left-10 w-56 h-56 bg-slate-100 rounded-2xl shadow-xl z-30 border-4 border-white hover:-translate-y-2 transition-transform duration-500 delay-100 overflow-hidden">
-                  <Image 
-                    src="/images/storefront/trust-2.png" 
-                    alt="Trusted Car Maintenance" 
-                    fill 
-                    className="object-cover"
-                  />
+                <div className="absolute bottom-10 left-10 w-56 h-56 bg-gradient-to-br from-brand-orange to-orange-600 rounded-2xl shadow-xl z-30 border-4 border-white hover:-translate-y-2 transition-transform duration-500 delay-100 overflow-hidden flex flex-col items-center justify-center gap-3 p-6 text-white">
+                  <div className="size-16 bg-white/20 rounded-xl flex items-center justify-center border border-white/20">
+                    <span className="material-symbols-outlined text-[40px]">local_shipping</span>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-black">توصيل سريع</p>
+                    <p className="text-orange-100 text-sm mt-1">لجميع المناطق</p>
+                  </div>
                 </div>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-orange rounded-full opacity-20 blur-2xl" />
                 <div className="absolute bottom-20 left-32 w-48 h-48 bg-brand-navy rounded-full opacity-10 blur-2xl" />
@@ -441,11 +421,8 @@ export default async function StorefrontPage({
         <div className="mx-auto max-w-[1400px] px-6 lg:px-12 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div className="md:col-span-1">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="size-8 bg-brand-orange rounded-lg flex items-center justify-center text-white">
-                  <span className="material-symbols-outlined text-lg">oil_barrel</span>
-                </div>
-                <span className="text-xl font-black text-brand-navy">ItalyaOils</span>
+              <div className="mb-4">
+                <Logo variant="dark" height={40} />
               </div>
               <p className="text-slate-500 text-sm leading-relaxed">
                 وجهتك الأولى للزيوت والمحركات العالمية. جودة أصلية وأداء مضمون.
@@ -475,12 +452,12 @@ export default async function StorefrontPage({
               <h4 className="font-bold text-brand-navy mb-4">روابط سريعة</h4>
               <ul className="space-y-2 text-sm text-slate-500">
                 <li><a href="/" className="hover:text-brand-orange transition-colors">الرئيسية</a></li>
-                <li><a href="/admin" className="hover:text-brand-orange transition-colors">لوحة الإدارة</a></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
-            <p>© 2025 ItalyaOils. جميع الحقوق محفوظة.</p>
+            <p>© {new Date().getFullYear()} الإيطالية لزيوت السيارات. جميع الحقوق محفوظة.</p>
+            <p className="text-slate-300">Developed by <span className="text-brand-orange font-semibold">Bilal Aboqura</span></p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-brand-navy transition-colors">سياسة الخصوصية</a>
               <a href="#" className="hover:text-brand-navy transition-colors">الشروط والأحكام</a>

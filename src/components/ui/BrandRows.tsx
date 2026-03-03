@@ -3,6 +3,7 @@
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/whatsapp";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Product {
     id: string;
@@ -60,27 +61,31 @@ export default function BrandRows({ groups }: { groups: BrandGroup[] }) {
                             >
                                 {/* Image */}
                                 <div className="relative h-36 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden shrink-0">
-                                    {product.imageUrl ? (
-                                        <Image
-                                            src={product.imageUrl}
-                                            alt={product.name}
-                                            fill
-                                            className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
-                                        />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full">
-                                            <span className="material-symbols-outlined text-slate-300 text-[48px]">
-                                                oil_barrel
-                                            </span>
-                                        </div>
-                                    )}
+                                    <Link href={`/products/${product.id}`} className="block relative h-full">
+                                        {product.imageUrl ? (
+                                            <Image
+                                                src={product.imageUrl}
+                                                alt={product.name}
+                                                fill
+                                                className="object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full">
+                                                <span className="material-symbols-outlined text-slate-300 text-[48px]">
+                                                    oil_barrel
+                                                </span>
+                                            </div>
+                                        )}
+                                    </Link>
                                 </div>
 
                                 {/* Content */}
                                 <div className="p-3 flex flex-col flex-1">
-                                    <h3 className="font-bold text-brand-navy text-xs leading-snug line-clamp-2 mb-1">
-                                        {product.name}
-                                    </h3>
+                                    <Link href={`/products/${product.id}`} className="block">
+                                        <h3 className="font-bold text-brand-navy text-xs leading-snug line-clamp-2 mb-1 hover:text-brand-orange transition-colors">
+                                            {product.name}
+                                        </h3>
+                                    </Link>
                                     {product.viscosity && (
                                         <p className="text-[10px] text-slate-400 mb-2">{product.viscosity}</p>
                                     )}

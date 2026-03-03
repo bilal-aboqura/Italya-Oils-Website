@@ -1,11 +1,14 @@
 import Link from "next/link";
+import Logo from "@/components/ui/Logo";
+import { ADMIN_PATH } from "@/lib/admin-config";
 
 const NAV_ITEMS = [
-  { label: "لوحة التحكم", href: "/admin", icon: "grid_view" },
-  { label: "المنتجات", href: "/admin/products", icon: "inventory_2" },
-  { label: "استيراد Excel", href: "/admin/products/import", icon: "upload_file" },
-  { label: "البانرات الترويجية", href: "/admin/promos", icon: "image" },
-  { label: "الفئات", href: "/admin/categories", icon: "label" },
+  { label: "لوحة التحكم", href: `${ADMIN_PATH}`, icon: "grid_view" },
+  { label: "المنتجات", href: `${ADMIN_PATH}/products`, icon: "inventory_2" },
+  { label: "استيراد Excel", href: `${ADMIN_PATH}/products/import`, icon: "upload_file" },
+  { label: "جالب الصور", href: `${ADMIN_PATH}/image-grabber`, icon: "image_search" },
+  { label: "البانرات الترويجية", href: `${ADMIN_PATH}/promos`, icon: "image" },
+  { label: "الفئات", href: `${ADMIN_PATH}/categories`, icon: "label" },
 ];
 
 export default function AdminLayout({
@@ -19,15 +22,7 @@ export default function AdminLayout({
       <aside className="w-64 bg-brand-navy flex flex-col flex-shrink-0 sticky top-0 h-screen">
         {/* Logo */}
         <div className="px-6 py-5 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <div className="size-8 bg-brand-orange rounded-lg flex items-center justify-center text-white shadow-lg shadow-brand-orange/30">
-              <span className="material-symbols-outlined text-lg">oil_barrel</span>
-            </div>
-            <div>
-              <p className="text-white font-black text-sm leading-tight">ItalyaOils</p>
-              <p className="text-slate-400 text-[10px]">لوحة الإدارة</p>
-            </div>
-          </div>
+          <Logo variant="light" height={38} />
         </div>
 
         {/* Navigation */}
