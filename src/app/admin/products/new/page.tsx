@@ -3,6 +3,8 @@ import NewProductClient from "./NewProductClient";
 import Link from "next/link";
 import { ADMIN_PATH } from "@/lib/admin-config";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewProductPage() {
   const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
 
