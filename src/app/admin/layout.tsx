@@ -1,6 +1,10 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
-import { ADMIN_PATH } from "@/lib/admin-config";
+
+export const dynamic = "force-dynamic";
+
+// Read at request time (runtime) not build time
+const ADMIN_PATH = `/${process.env.ADMIN_SECRET_PATH ?? "admin-panel"}`;
 
 const NAV_ITEMS = [
   { label: "لوحة التحكم", href: `${ADMIN_PATH}`, icon: "grid_view" },

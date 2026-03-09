@@ -4,9 +4,9 @@ import { Package, Upload, Plus } from "lucide-react";
 import AdminProductTable from "@/components/admin/AdminProductTable";
 import AddCategoryModal from "@/components/admin/AddCategoryModal";
 import Pagination from "@/components/admin/Pagination";
-import { ADMIN_PATH } from "@/lib/admin-config";
 
 export const dynamic = "force-dynamic";
+const ADMIN_PATH = `/${process.env.ADMIN_SECRET_PATH ?? "admin-panel"}`;
 
 const PAGE_SIZE = 50;
 

@@ -1,9 +1,9 @@
 import { LayoutDashboard, Package, FileSpreadsheet, Image } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ADMIN_PATH } from "@/lib/admin-config";
 
 export const dynamic = "force-dynamic";
+const ADMIN_PATH = `/${process.env.ADMIN_SECRET_PATH ?? "admin-panel"}`;
 
 export default async function AdminDashboardPage() {
   const [productCount, uncategorized, missingImages, promoCount] = await Promise.all([
