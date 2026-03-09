@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, Edit2, Loader2, AlertCircle } from "lucide-react";
+import { Trash2, Edit2, Loader2, AlertCircle, UploadCloud } from "lucide-react";
+import Image from "next/image";
 
 interface Category {
     id: string;
     name: string;
     slug: string;
     description: string | null;
+    imageUrl?: string | null;
     _count?: {
         products: number;
     };
@@ -25,6 +27,8 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [editName, setEditName] = useState("");
     const [editDescription, setEditDescription] = useState("");
+    const [editImageFile, setEditImageFile] = useState<File | null>(null);
+    const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
 
     const handleDelete = async (id: string, name: string) => {
@@ -56,7 +60,17 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
         setEditingCategory(category);
         setEditName(category.name);
         setEditDescription(category.description || "");
+        setEditImageFile(null);
+        setEditImagePreview(category.imageUrl || null);
         setError(null);
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setEditImageFile(file);
+            setEditImagePreview(URL.createObjectURL(file));
+        }
     };
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -67,12 +81,27 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
         setError(null);
 
         try {
+            let finalImageUrl = editingCategory.imageUrl || null;
+
+            if (editImageFile) {
+                const uploadData = new FormData();
+                uploadData.append("file", editImageFile);
+                const uploadRes = await fetch("/api/admin/upload", {
+                    method: "POST",
+                    body: uploadData,
+                });
+                const uploadResult = await uploadRes.json();
+                if (!uploadRes.ok) throw new Error(uploadResult.error?.message);
+                finalImageUrl = uploadResult.url;
+            }
+
             const res = await fetch(`/api/admin/categories/${editingCategory.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     name: editName.trim(),
                     description: editDescription.trim(),
+                    imageUrl: finalImageUrl,
                 }),
             });
 
@@ -105,6 +134,7 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
                 <table className="w-full text-sm text-right">
                     <thead>
                         <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider">
+                            <th className="py-4 px-6 font-bold w-16">الصورة</th>
                             <th className="py-4 px-6 font-bold">التصنيف</th>
                             <th className="py-4 px-6 font-bold">الرابط (Slug)</th>
                             <th className="py-4 px-6 font-bold">الوصف</th>
@@ -114,6 +144,15 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
                     <tbody className="divide-y divide-slate-50">
                         {categories.map((category) => (
                             <tr key={category.id} className="hover:bg-slate-50/50 transition-colors group">
+                                <td className="py-4 px-6">
+                                    <div className="w-12 h-12 bg-white rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center relative">
+                                        {category.imageUrl ? (
+                                            <Image src={category.imageUrl} alt={category.name} fill className="object-cover" />
+                                        ) : (
+                                            <span className="material-symbols-outlined text-slate-300">image</span>
+                                        )}
+                                    </div>
+                                </td>
                                 <td className="py-4 px-6">
                                     <span className="font-bold text-brand-navy">{category.name}</span>
                                 </td>
@@ -171,8 +210,33 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
                             <Edit2 className="w-5 h-5 text-brand-orange" />
                             تعديل التصنيف
                         </h2>
-                        
+
                         <form onSubmit={handleUpdate} className="space-y-6">
+                            {/* Image Upload */}
+                            <div className="space-y-2 text-right">
+                                <label className="block text-sm font-bold text-brand-navy">صورة التصنيف</label>
+                                <div className="flex items-start justify-end gap-5">
+                                    <div className="flex-1">
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            onChange={handleImageChange}
+                                            className="w-full text-sm file:ml-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-brand-navy/5 file:text-brand-navy file:font-bold hover:file:bg-brand-navy/10 text-slate-500 cursor-pointer"
+                                            disabled={isSaving}
+                                            dir="rtl"
+                                        />
+                                        <p className="text-xs text-slate-400 mt-2">JPG, PNG, WebP — يفضل صورة مربعة</p>
+                                    </div>
+                                    <div className="w-24 h-24 rounded-2xl bg-slate-50 overflow-hidden flex-shrink-0 border-2 border-dashed border-slate-200 flex items-center justify-center relative">
+                                        {editImagePreview ? (
+                                            <Image src={editImagePreview} alt="Preview" fill className="object-cover" />
+                                        ) : (
+                                            <UploadCloud className="w-8 h-8 text-slate-300" />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="space-y-2">
                                 <label className="block text-sm font-bold text-brand-navy">اسم التصنيف</label>
                                 <input
@@ -186,7 +250,7 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
                                     dir="rtl"
                                 />
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <label className="block text-sm font-bold text-brand-navy">الوصف</label>
                                 <textarea

@@ -24,7 +24,8 @@ export async function PATCH(
         // Server-side validation
         const name = typeof body.name === "string" ? body.name.trim() : undefined;
         const description = typeof body.description === "string" ? body.description.trim() || null : undefined;
-        
+        const imageUrl = typeof body.imageUrl === "string" ? body.imageUrl.trim() || null : undefined;
+
         let updateData: any = {};
         if (name !== undefined) {
             if (!name) {
@@ -36,9 +37,13 @@ export async function PATCH(
             updateData.name = name;
             updateData.slug = generateSlug(name);
         }
-        
+
         if (description !== undefined) {
             updateData.description = description;
+        }
+
+        if (imageUrl !== undefined) {
+            updateData.imageUrl = imageUrl;
         }
 
         const category = await prisma.category.update({
@@ -82,7 +87,7 @@ export async function DELETE(
 ) {
     try {
         const { id } = await params;
-        
+
         // Check if there are products linked to this category
         const productCount = await prisma.product.count({
             where: { categoryId: id }
@@ -90,11 +95,11 @@ export async function DELETE(
 
         if (productCount > 0) {
             return NextResponse.json(
-                { 
-                    error: { 
-                        code: "CONFLICT", 
-                        message: `لا يمكن حذف هذا التصنيف لأنه مرتبط بـ ${productCount} منتج. يرجى حذف المنتجات أو تغيير تصنيفها أولاً.` 
-                    } 
+                {
+                    error: {
+                        code: "CONFLICT",
+                        message: `لا يمكن حذف هذا التصنيف لأنه مرتبط بـ ${productCount} منتج. يرجى حذف المنتجات أو تغيير تصنيفها أولاً.`
+                    }
                 },
                 { status: 409 }
             );

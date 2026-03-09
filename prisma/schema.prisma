@@ -18,6 +18,7 @@ model Category {
   name        String    @unique
   slug        String    @unique
   description String?
+  imageUrl    String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -73,3 +74,22 @@ model PromoBanner {
 
   @@map("promo_banners")
 }
+
+// ==========================================
+// CountdownBanner: Bottom promotional banner with timer
+// ==========================================
+model CountdownBanner {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String   @default("خصومات ما تتفوت")
+  subtitle    String   @default("استمتع بخصومات مميزة على مختلف المنتجات طوال العام")
+  imageUrl    String?
+  buttonText  String   @default("تسوق الآن")
+  buttonLink  String   @default("/?section=products")
+  endsAt      DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("countdown_banners")
+}
+

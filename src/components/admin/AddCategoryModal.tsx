@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X, Loader2, Tag } from "lucide-react";
+import { Plus, X, Loader2, Tag, UploadCloud } from "lucide-react";
+import Image from "next/image";
 
 interface AddCategoryModalProps {
     /** Called after a category is successfully created, useful for optimistic UI. */
@@ -18,11 +19,15 @@ export default function AddCategoryModal({ onCreated }: AddCategoryModalProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     // Reset form state
     const reset = () => {
         setName("");
         setDesc("");
+        setImageFile(null);
+        setImagePreview(null);
         setError(null);
         setSuccess(null);
         setLoading(false);
@@ -30,6 +35,14 @@ export default function AddCategoryModal({ onCreated }: AddCategoryModalProps) {
 
     const openModal = () => { reset(); setIsOpen(true); };
     const closeModal = () => { setIsOpen(false); reset(); };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -45,10 +58,23 @@ export default function AddCategoryModal({ onCreated }: AddCategoryModalProps) {
         setSuccess(null);
 
         try {
+            let imageUrl: string | null = null;
+            if (imageFile) {
+                const uploadData = new FormData();
+                uploadData.append("file", imageFile);
+                const uploadRes = await fetch("/api/admin/upload", {
+                    method: "POST",
+                    body: uploadData,
+                });
+                const uploadResult = await uploadRes.json();
+                if (!uploadRes.ok) throw new Error(uploadResult.error?.message);
+                imageUrl = uploadResult.url;
+            }
+
             const res = await fetch("/api/admin/categories", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: name.trim(), description: description.trim() }),
+                body: JSON.stringify({ name: name.trim(), description: description.trim(), imageUrl }),
             });
 
             const data = await res.json();
@@ -127,6 +153,31 @@ export default function AddCategoryModal({ onCreated }: AddCategoryModalProps) {
 
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Image Upload */}
+                            <div className="space-y-2 text-right">
+                                <label className="block text-sm font-bold text-white">صورة التصنيف</label>
+                                <div className="flex items-start justify-end gap-5">
+                                    <div className="flex-1">
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            onChange={handleImageChange}
+                                            className="w-full text-sm file:ml-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-white/10 file:text-white file:font-semibold hover:file:bg-white/20 text-gray-300 cursor-pointer"
+                                            disabled={loading}
+                                            dir="rtl"
+                                        />
+                                        <p className="text-xs text-gray-400 mt-2">JPG, PNG, WebP — يفضل صورة مربعة</p>
+                                    </div>
+                                    <div className="w-24 h-24 rounded-2xl bg-white/5 overflow-hidden flex-shrink-0 border-2 border-dashed border-white/20 flex items-center justify-center relative">
+                                        {imagePreview ? (
+                                            <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                                        ) : (
+                                            <UploadCloud className="w-8 h-8 text-gray-500" />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Category Name – required */}
                             <div className="space-y-2">
                                 <label

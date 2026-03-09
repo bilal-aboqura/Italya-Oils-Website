@@ -12,10 +12,11 @@ interface PromoBanner {
 }
 
 // Skeleton shimmer while loading
-function BannerSkeleton({ aspectRatio }: { aspectRatio: string }) {
+function BannerSkeleton({ aspectRatio, fullWidth }: { aspectRatio: string; fullWidth?: boolean }) {
   return (
     <div
-      className="relative rounded-3xl overflow-hidden bg-slate-100 animate-pulse"
+      className={`relative overflow-hidden bg-slate-100 animate-pulse ${fullWidth ? "rounded-md w-full" : "rounded-3xl"
+        }`}
       style={{ aspectRatio }}
     >
       <div className="absolute inset-0 bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 animate-shimmer" />
@@ -26,16 +27,16 @@ function BannerSkeleton({ aspectRatio }: { aspectRatio: string }) {
 export default function PromoCarousel({
   placement = "home_hero",
   aspectRatio = "16 / 9",
+  fullWidth = false,
 }: {
   placement?: string;
   aspectRatio?: string;
+  fullWidth?: boolean;
 }) {
   const [banners, setBanners] = useState<PromoBanner[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const touchStartX = useRef<number | null>(null);
 
   const INTERVAL_MS = 5000;
@@ -45,45 +46,32 @@ export default function PromoCarousel({
     fetch(`/api/storefront/promos?targetPage=${encodeURIComponent(placement)}`)
       .then((res) => res.json())
       .then((data) => setBanners(data.banners ?? []))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, [placement]);
 
   const goTo = useCallback((idx: number) => {
     setCurrentIndex(idx);
-    setProgress(0);
   }, []);
 
   const prev = useCallback(() => {
     setCurrentIndex((i) => (i - 1 + banners.length) % banners.length);
-    setProgress(0);
   }, [banners.length]);
 
   const next = useCallback(() => {
     setCurrentIndex((i) => (i + 1) % banners.length);
-    setProgress(0);
   }, [banners.length]);
 
-  // Progress bar tick
+  // Auto-slide effect
   useEffect(() => {
-    if (banners.length <= 1 || isPaused) {
-      if (progressRef.current) clearInterval(progressRef.current);
-      return;
-    }
-    setProgress(0);
-    progressRef.current = setInterval(() => {
-      setProgress((p) => {
-        if (p >= 100) {
-          setCurrentIndex((i) => (i + 1) % banners.length);
-          return 0;
-        }
-        return p + 100 / (INTERVAL_MS / 50);
-      });
-    }, 50);
-    return () => {
-      if (progressRef.current) clearInterval(progressRef.current);
-    };
-  }, [banners.length, isPaused, currentIndex]);
+    if (banners.length <= 1 || isPaused) return;
+
+    const timer = setInterval(() => {
+      setCurrentIndex((i) => (i + 1) % banners.length);
+    }, INTERVAL_MS);
+
+    return () => clearInterval(timer);
+  }, [banners.length, isPaused]);
 
   // Touch swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -99,12 +87,13 @@ export default function PromoCarousel({
     touchStartX.current = null;
   };
 
-  if (loading) return <BannerSkeleton aspectRatio={aspectRatio} />;
+  if (loading) return <BannerSkeleton aspectRatio={aspectRatio} fullWidth={fullWidth} />;
   if (banners.length === 0) return null;
 
   return (
     <div
-      className="relative rounded-3xl overflow-hidden group shadow-lg select-none"
+      className={`relative overflow-hidden group select-none ${fullWidth ? "rounded-md w-full" : "rounded-3xl shadow-lg"
+        }`}
       style={{ aspectRatio }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
@@ -147,16 +136,6 @@ export default function PromoCarousel({
         );
       })}
 
-      {/* Progress bar */}
-      {banners.length > 1 && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-10">
-          <div
-            className="h-full bg-white/80 transition-none"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      )}
-
       {/* Arrow Controls */}
       {banners.length > 1 && (
         <>
@@ -182,11 +161,10 @@ export default function PromoCarousel({
                 key={i}
                 onClick={() => goTo(i)}
                 aria-label={`الانتقال للبانر ${i + 1}`}
-                className={`rounded-full transition-all duration-300 ${
-                  i === currentIndex
-                    ? "w-6 h-2 bg-white"
-                    : "w-2 h-2 bg-white/50 hover:bg-white/80"
-                }`}
+                className={`rounded-full transition-all duration-300 ${i === currentIndex
+                  ? "w-6 h-2 bg-white"
+                  : "w-2 h-2 bg-white/50 hover:bg-white/80"
+                  }`}
               />
             ))}
           </div>

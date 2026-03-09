@@ -35,9 +35,11 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // Optional description (FR-009)
+    // Optional description and image (FR-009)
     const description =
         typeof body.description === "string" ? body.description.trim() || null : null;
+    const imageUrl =
+        typeof body.imageUrl === "string" ? body.imageUrl.trim() || null : null;
 
     // ── Auto-generate slug (FR-011) ───────────────────────────────────────────
     const slug = generateSlug(name);
@@ -57,7 +59,7 @@ export async function POST(request: NextRequest) {
     // ── Persist to MongoDB via Prisma (FR-012) ────────────────────────────────
     try {
         const category = await prisma.category.create({
-            data: { name, slug, description: description ?? undefined },
+            data: { name, slug, description: description ?? undefined, imageUrl },
         });
 
         return NextResponse.json({ success: true, category }, { status: 201 });

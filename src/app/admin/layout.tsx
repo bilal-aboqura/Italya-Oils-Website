@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { label: "جالب الصور", href: `${ADMIN_PATH}/image-grabber`, icon: "image_search" },
   { label: "البانرات الترويجية", href: `${ADMIN_PATH}/promos`, icon: "image" },
   { label: "الفئات", href: `${ADMIN_PATH}/categories`, icon: "label" },
+  { label: "الشريط السفلي", href: `${ADMIN_PATH}/countdown-banner`, icon: "timer" },
 ];
 
 export default function AdminLayout({
