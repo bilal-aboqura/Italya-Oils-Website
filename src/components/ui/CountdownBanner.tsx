@@ -48,49 +48,10 @@ export default function CountdownBanner({ banner }: { banner: Banner }) {
 
     return (
         <section
-            className="w-full bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 flex flex-col md:flex-row min-h-[220px]"
-            dir="rtl"
+            className="w-full bg-white rounded-md overflow-hidden shadow-sm border border-slate-100 flex flex-col-reverse md:flex-row min-h-[220px]"
         >
-            {/* Left: Text & Timer */}
-            <div className="flex-1 flex flex-col justify-center px-8 py-10 gap-5">
-                <div>
-                    <h2 className="text-3xl lg:text-4xl font-black text-brand-navy leading-tight mb-2">
-                        {banner.title}
-                    </h2>
-                    <p className="text-slate-500 text-sm font-medium">{banner.subtitle}</p>
-                </div>
-
-                {/* Countdown — suppress hydration warning on the numbers */}
-                <div className="flex items-center gap-3 flex-wrap">
-                    {units.map((u, i) => (
-                        <div key={u.label} className="flex items-center gap-3">
-                            <div className="flex flex-col items-center">
-                                <span
-                                    suppressHydrationWarning
-                                    className="text-3xl lg:text-4xl font-black text-brand-navy tabular-nums leading-none"
-                                >
-                                    {time === null ? "--" : u.value}
-                                </span>
-                                <span className="text-xs text-slate-400 font-bold mt-1">{u.label}</span>
-                            </div>
-                            {i < units.length - 1 && (
-                                <span className="text-2xl font-black text-brand-orange leading-none pb-4">
-                                    :
-                                </span>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                <div>
-                    <Link href={banner.buttonLink} className="btn-primary inline-flex px-8 py-3 text-sm">
-                        {banner.buttonText}
-                    </Link>
-                </div>
-            </div>
-
-            {/* Right: Image */}
-            <div className="w-full md:w-[45%] flex-shrink-0 relative min-h-[220px] bg-slate-100">
+            {/* Left: Image */}
+            <div className="w-full md:w-[60%] flex-shrink-0 relative min-h-[220px] bg-slate-100">
                 {banner.imageUrl ? (
                     <Image
                         src={banner.imageUrl}
@@ -106,6 +67,44 @@ export default function CountdownBanner({ banner }: { banner: Banner }) {
                         </span>
                     </div>
                 )}
+            </div>
+
+            {/* Right: Text & Timer */}
+            <div className="w-full md:w-[40%] flex flex-col justify-center px-8 py-10 gap-5" dir="rtl">
+                <div>
+                    <h2 className="text-3xl lg:text-4xl font-black text-brand-navy leading-tight mb-2">
+                        {banner.title}
+                    </h2>
+                    <p className="text-slate-500 text-sm font-medium">{banner.subtitle}</p>
+                </div>
+
+                {/* Countdown — suppress hydration warning on the numbers */}
+                <div className="flex items-center gap-3 flex-wrap">
+                    {[...units].reverse().map((u, i, arr) => (
+                        <div key={u.label} className="flex items-center gap-3">
+                            <div className="flex flex-col items-center">
+                                <span
+                                    suppressHydrationWarning
+                                    className="text-3xl lg:text-4xl font-black text-brand-navy tabular-nums leading-none"
+                                >
+                                    {time === null ? "--" : u.value}
+                                </span>
+                                <span className="text-xs text-slate-400 font-bold mt-1">{u.label}</span>
+                            </div>
+                            {i < arr.length - 1 && (
+                                <span className="text-2xl font-black text-brand-orange leading-none pb-4">
+                                    :
+                                </span>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                <div>
+                    <Link href={banner.buttonLink} className="btn-primary inline-flex px-8 py-3 text-sm">
+                        {banner.buttonText}
+                    </Link>
+                </div>
             </div>
         </section>
     );

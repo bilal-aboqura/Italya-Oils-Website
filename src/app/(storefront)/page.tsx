@@ -7,6 +7,7 @@ import BrandRows from "@/components/ui/BrandRows";
 import Image from "next/image";
 import Logo from "@/components/ui/Logo";
 import CountdownBanner from "@/components/ui/CountdownBanner";
+import Footer from "@/components/ui/Footer";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60; // ISR: rebuild in background every 60 seconds
@@ -248,18 +249,7 @@ export default async function StorefrontPage({
           </div>
         </section>
 
-        {/* ── COUNTDOWN BANNER ─────────────────────────── */}
-        {countdownBanner && (
-          <CountdownBanner banner={{
-            title: countdownBanner.title,
-            subtitle: countdownBanner.subtitle,
-            imageUrl: countdownBanner.imageUrl,
-            buttonText: countdownBanner.buttonText,
-            buttonLink: countdownBanner.buttonLink,
-            endsAt: countdownBanner.endsAt.toISOString(),
-            isActive: countdownBanner.isActive,
-          }} />
-        )}
+        {/* Countdown banner moved to match full 95% width outside main */}
 
         {/* Trust/CTA sections removed */}
         {false && (
@@ -339,55 +329,23 @@ export default async function StorefrontPage({
 
       </main>
 
-      {/* ── FOOTER ───────────────────────────────────── */}
-      <footer className="bg-white border-t border-slate-200 mt-10">
-        <div className="mx-auto max-w-[1400px] px-6 lg:px-12 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            <div className="md:col-span-1">
-              <div className="mb-4">
-                <Logo variant="dark" height={40} />
-              </div>
-              <p className="text-slate-500 text-sm leading-relaxed">
-                وجهتك الأولى للزيوت والمحركات العالمية. جودة أصلية وأداء مضمون.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-bold text-brand-navy mb-4">أهم العلامات</h4>
-              <ul className="space-y-2 text-sm text-slate-500">
-                {["موبيل وان", "شل هيلكس", "كاسترول", "توتال", "ليكوي مولي"].map((b) => (
-                  <li key={b}>
-                    <a href={`/?brand=${encodeURIComponent(b)}`} className="hover:text-brand-orange transition-colors">{b}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-brand-navy mb-4">المساعدة</h4>
-              <ul className="space-y-2 text-sm text-slate-500">
-                {["دليل اختيار الزيت", "الشحن والتوصيل", "سياسة الإرجاع"].map((t) => (
-                  <li key={t}>
-                    <a href="#" className="hover:text-brand-orange transition-colors">{t}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-brand-navy mb-4">روابط سريعة</h4>
-              <ul className="space-y-2 text-sm text-slate-500">
-                <li><a href="/" className="hover:text-brand-orange transition-colors">الرئيسية</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
-            <p>© {new Date().getFullYear()} الإيطالية لزيوت السيارات. جميع الحقوق محفوظة.</p>
-            <p className="text-slate-300">Developed by <span className="text-brand-orange font-semibold">Bilal Aboqura</span></p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-brand-navy transition-colors">سياسة الخصوصية</a>
-              <a href="#" className="hover:text-brand-navy transition-colors">الشروط والأحكام</a>
-            </div>
-          </div>
+      {/* ── COUNTDOWN BANNER (BOTTOM) ─────────────────────────── */}
+      {countdownBanner && (
+        <div className="w-[95%] mx-auto mb-6">
+          <CountdownBanner banner={{
+            title: countdownBanner.title,
+            subtitle: countdownBanner.subtitle,
+            imageUrl: countdownBanner.imageUrl,
+            buttonText: countdownBanner.buttonText,
+            buttonLink: countdownBanner.buttonLink,
+            endsAt: countdownBanner.endsAt.toISOString(),
+            isActive: countdownBanner.isActive,
+          }} />
         </div>
-      </footer>
+      )}
+
+      {/* ── FOOTER ───────────────────────────────────── */}
+      <Footer />
     </div>
   );
 }

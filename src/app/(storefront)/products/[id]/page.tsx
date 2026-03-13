@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/whatsapp";
+import Footer from "@/components/ui/Footer";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -225,22 +226,7 @@ export default async function ProductPage({ params }: PageProps) {
       </main>
 
       {/* Footer (Simplified from page.tsx) */}
-      <footer className="bg-white border-t border-slate-200 mt-auto">
-        <div className="mx-auto max-w-[1400px] px-6 lg:px-12 py-12 text-center">
-            <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="size-8 bg-brand-orange rounded-lg flex items-center justify-center text-white">
-                  <span className="material-symbols-outlined text-lg">oil_barrel</span>
-                </div>
-                <span className="text-xl font-black text-brand-navy">ItalyaOils</span>
-            </div>
-            <p className="text-slate-500 text-sm mb-8 max-w-md mx-auto">
-                وجهتك الأولى للزيوت والمحركات العالمية. جودة أصلية وأداء مضمون.
-            </p>
-            <div className="border-t border-slate-100 pt-8 text-sm text-slate-400">
-              <p>© 2025 ItalyaOils. جميع الحقوق محفوظة.</p>
-            </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
