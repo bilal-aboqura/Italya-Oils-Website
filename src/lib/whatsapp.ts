@@ -87,19 +87,19 @@ export function buildWhatsAppUrl(
 }
 
 /**
- * Formats a price as SAR currency.
+ * Formats a price as EGP currency.
  */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("ar-SA", {
+  return new Intl.NumberFormat("ar-EG", {
     style: "currency",
-    currency: "SAR",
+    currency: "EGP",
     maximumFractionDigits: 2,
   }).format(amount);
 }
 
 /** Alias for formatCurrency — returns clean number string */
 export function formatPrice(amount: number): string {
-  return amount.toLocaleString("ar-SA", { maximumFractionDigits: 2 });
+  return amount.toLocaleString("ar-EG", { maximumFractionDigits: 2 });
 }
 
 /**

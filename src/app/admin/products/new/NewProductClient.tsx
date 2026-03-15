@@ -105,7 +105,7 @@ export default function NewProductClient({ categories }: { categories: Category[
         {/* Price */}
         <div>
           <label className="block text-sm font-bold text-brand-navy mb-1.5">
-            السعر (ر.س) <span className="text-red-500">*</span>
+            السعر (ج.م) <span className="text-red-500">*</span>
           </label>
           <input
             type="number"

@@ -15,9 +15,10 @@ interface Category {
 interface AdminProductTableProps {
   products: ProductWithCategory[];
   categories: Category[];
+  adminPath: string;
 }
 
-export default function AdminProductTable({ products, categories }: AdminProductTableProps) {
+export default function AdminProductTable({ products, categories, adminPath }: AdminProductTableProps) {
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkCategoryId, setBulkCategoryId] = useState("");
@@ -216,7 +217,7 @@ export default function AdminProductTable({ products, categories }: AdminProduct
                 {/* Actions */}
                 <td className="py-3 px-3">
                   <a
-                    href={`/admin/products/${product.id}`}
+                    href={`${adminPath}/products/${product.id}`}
                     className="text-xs text-primary-400 hover:text-primary-300 font-medium"
                   >
                     تعديل

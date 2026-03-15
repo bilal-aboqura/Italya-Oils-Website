@@ -81,13 +81,13 @@ export default function CheckoutForm({ onBack, onSuccess }: CheckoutFormProps) {
               {item.name} <span className="text-slate-400">× {item.quantity}</span>
             </span>
             <span className="font-bold text-brand-navy flex-shrink-0">
-              {formatPrice(item.price * item.quantity)} ر.س
+              {formatPrice(item.price * item.quantity)} ج.م
             </span>
           </div>
         ))}
         <div className="border-t border-slate-200 pt-2 flex justify-between font-black text-brand-navy">
           <span>الإجمالي</span>
-          <span className="text-brand-orange">{formatPrice(totalPrice())} ر.س</span>
+          <span className="text-brand-orange">{formatPrice(totalPrice())} ج.م</span>
         </div>
       </div>
 

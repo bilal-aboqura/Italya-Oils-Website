@@ -214,7 +214,7 @@ export default async function ProductPage({ params }: PageProps) {
                           <h4 className="font-bold text-brand-navy text-sm mb-1 group-hover:text-brand-orange transition-colors line-clamp-2">
                             {p.name}
                           </h4>
-                          <span className="font-black text-brand-navy text-sm">{formatPrice(p.price)} ر.س</span>
+                          <span className="font-black text-brand-navy text-sm">{formatPrice(p.price)} ج.م</span>
                         </div>
                       </Link>
                     ))}

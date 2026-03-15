@@ -9,7 +9,15 @@ import Image from "next/image";
 import ImageCropperModal from "@/components/admin/ImageCropperModal";
 import SlotGuideModal from "@/components/admin/SlotGuideModal";
 
-const ADMIN = process.env.NEXT_PUBLIC_ADMIN_PATH ?? "/admin-panel";
+// Client component — we can't read server-only env vars here.
+// The parent page passes the admin path via a data attribute on the wrapper div.
+// Fallback: use the segment that the Next.js router currently shows us.
+function getAdminBase() {
+  if (typeof window === "undefined") return "/admin";
+  // Extract the first two path segments, e.g. /italya-ops-2026
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  return parts.length >= 1 ? `/${parts[0]}` : "/admin";
+}
 
 const SLOTS = [
   { id: "home_top_strip", label: "الشريط العلوي الرفيع (8:1)", aspect: 8 / 1, recommend: "يفضل 1920x240" },
@@ -106,9 +114,14 @@ function NewPromoForm() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || "Failed to create promo");
+      if (!res.ok) {
+        const msg = data.error?.message || data.error || "Failed to create promo";
+        const details = data.error?.details ? ` — ${data.error.details}` : "";
+        throw new Error(msg + details);
+      }
 
-      router.push(`${ADMIN}/promos`);
+      const adminBase = getAdminBase();
+      router.push(`${adminBase}/promos`);
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -128,7 +141,7 @@ function NewPromoForm() {
     <div className="space-y-6 max-w-4xl mx-auto pb-10">
       <div className="flex items-center gap-4">
         <Link
-          href={`${ADMIN}/promos`}
+          href={`${getAdminBase()}/promos`}
           className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-500"
         >
           <ArrowRight className="w-5 h-5" />
@@ -282,7 +295,7 @@ function NewPromoForm() {
 
           <div className="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
             <Link
-              href={`${ADMIN}/promos`}
+              href={`${getAdminBase()}/promos`}
               className="px-6 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors text-sm"
               onClick={(e) => {
                 if (isSubmitting) e.preventDefault();

@@ -92,7 +92,7 @@ export default function BrandRows({ groups }: { groups: BrandGroup[] }) {
                                     <div className="flex items-center justify-between mt-auto pt-2 border-t border-slate-50">
                                         <span className="text-base font-black text-brand-navy">
                                             {formatPrice(product.price)}
-                                            <span className="text-[10px] text-slate-400 font-normal mr-0.5">ر.س</span>
+                                            <span className="text-[10px] text-slate-400 font-normal mr-0.5">ج.م</span>
                                         </span>
                                         <button
                                             onClick={() =>

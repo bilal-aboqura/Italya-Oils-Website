@@ -106,7 +106,7 @@ export default function CartPanel() {
                       {item.name}
                     </p>
                     <p className="text-brand-orange font-black text-sm">
-                      {formatPrice(item.price)} ر.س
+                      {formatPrice(item.price)} ج.م
                     </p>
                   </div>
 
@@ -145,7 +145,7 @@ export default function CartPanel() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm text-slate-500">
                   <span>المجموع الفرعي</span>
-                  <span>{formatPrice(totalPrice())} ر.س</span>
+                  <span>{formatPrice(totalPrice())} ج.م</span>
                 </div>
                 <div className="flex justify-between text-sm text-slate-400">
                   <span>الشحن</span>
@@ -154,7 +154,7 @@ export default function CartPanel() {
                 <div className="flex justify-between font-black text-brand-navy pt-2 border-t border-slate-100">
                   <span>الإجمالي</span>
                   <span className="text-brand-orange text-lg">
-                    {formatPrice(totalPrice())} ر.س
+                    {formatPrice(totalPrice())} ج.م
                   </span>
                 </div>
               </div>

@@ -42,9 +42,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ banner });
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
     console.error("[POST /api/admin/promos]", err);
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Failed to create promo." } },
+      { error: { code: "INTERNAL_ERROR", message: "Failed to create promo.", details: msg } },
       { status: 500 }
     );
   }

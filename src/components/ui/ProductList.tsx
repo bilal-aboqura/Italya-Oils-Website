@@ -127,7 +127,7 @@ function ProductCard({
             <span className="text-2xl font-black text-brand-navy">
               {formatPrice(product.price)}
             </span>
-            <span className="text-xs text-slate-400 mr-1">ر.س</span>
+            <span className="text-xs text-slate-400 mr-1">ج.م</span>
           </div>
           <button
             onClick={onAddToCart}

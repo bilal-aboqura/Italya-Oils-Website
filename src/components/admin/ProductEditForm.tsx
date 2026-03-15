@@ -127,7 +127,7 @@ export default function ProductEditForm({ product, categories }: ProductEditForm
       {/* Price & Brand */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1.5">السعر (ر.س)</label>
+          <label className="block text-sm font-medium text-gray-300 mb-1.5">السعر (ج.م)</label>
           <input
             type="number"
             inputMode="decimal"

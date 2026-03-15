@@ -60,7 +60,7 @@ export default async function AdminProductsPage({ searchParams }: Props) {
       </div>
 
       {/* Table */}
-      <AdminProductTable products={products} categories={categories} />
+      <AdminProductTable products={products} categories={categories} adminPath={ADMIN_PATH} />
 
       {/* Pagination */}
       <Pagination

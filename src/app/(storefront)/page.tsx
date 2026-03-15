@@ -149,6 +149,11 @@ export default async function StorefrontPage({
           </section>
         )}
 
+        {/* ── HERO BANNER (below categories, home only) ─────── */}
+        {!isFiltering && (
+          <PromoCarousel placement="home_hero" aspectRatio="16/5" fullWidth={true} />
+        )}
+
         {/* ── PRODUCT LISTING ─────────────────────── */}
         <section className="py-4" id="products">
           <div className="flex flex-col md:flex-row gap-6">
@@ -249,7 +254,9 @@ export default async function StorefrontPage({
           </div>
         </section>
 
-        {/* Countdown banner moved to match full 95% width outside main */}
+        {/* ── MIDDLE BANNER (full-width, between content) ────── */}
+        <PromoCarousel placement="home_middle" aspectRatio="21/5" fullWidth={true} />
+
 
         {/* Trust/CTA sections removed */}
         {false && (
@@ -328,6 +335,11 @@ export default async function StorefrontPage({
 
 
       </main>
+
+      {/* ── BOTTOM BANNER (full-width, above countdown) ─── */}
+      <div className="w-[95%] mx-auto">
+        <PromoCarousel placement="home_bottom" aspectRatio="4/1" fullWidth={true} />
+      </div>
 
       {/* ── COUNTDOWN BANNER (BOTTOM) ─────────────────────────── */}
       {countdownBanner && (

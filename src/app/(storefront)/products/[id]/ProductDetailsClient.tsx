@@ -53,7 +53,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
       <div className="mb-8">
         <div className="flex items-end gap-3 mb-6">
           <h3 className="text-4xl font-black text-brand-navy">
-            {formatPrice(product.price)} ر.س
+            {formatPrice(product.price)} ج.م
           </h3>
         </div>
 
