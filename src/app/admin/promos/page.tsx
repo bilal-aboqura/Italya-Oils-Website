@@ -133,7 +133,7 @@ export default async function AdminPromosPage() {
               style={{ gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))" }}
             >
               {slotBanners.map((banner) => (
-                <PromoBannerCard key={banner.id} banner={banner} />
+                <PromoBannerCard key={banner.id} banner={banner} adminPath={ADMIN_PATH} />
               ))}
             </div>
           </section>

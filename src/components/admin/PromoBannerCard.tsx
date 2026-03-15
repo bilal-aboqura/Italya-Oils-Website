@@ -24,7 +24,7 @@ export interface PromoBanner {
   sortOrder: number;
 }
 
-export default function PromoBannerCard({ banner }: { banner: PromoBanner }) {
+export default function PromoBannerCard({ banner, adminPath }: { banner: PromoBanner; adminPath: string }) {
   const router = useRouter();
   const [isActive, setIsActive] = useState(banner.isActive);
   const [loading, setLoading] = useState<"toggle" | "delete" | null>(null);
@@ -107,7 +107,7 @@ export default function PromoBannerCard({ banner }: { banner: PromoBanner }) {
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <div className="flex gap-2">
             <a
-              href={`/admin/promos/${banner.id}/edit`}
+              href={`${adminPath}/promos/${banner.id}/edit`}
               className="p-2 rounded-xl bg-white text-brand-navy hover:bg-brand-orange hover:text-white transition-colors shadow-md"
               title="تعديل"
             >
