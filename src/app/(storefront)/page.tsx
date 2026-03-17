@@ -157,6 +157,75 @@ export default async function StorefrontPage({
         {/* ── PRODUCT LISTING ─────────────────────── */}
         <section className="py-4" id="products">
           <div className="flex flex-col md:flex-row gap-6">
+            {/* Desktop Sidebar - Hidden on mobile, sticky on right side for desktop */}
+            {isFiltering && (
+              <aside className="hidden md:block w-64 flex-shrink-0">
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-card p-6 sticky top-24 space-y-8">
+
+                  {/* 1. Main Categories Section */}
+                  {categories.length > 0 && (
+                    <div>
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">
+                        الأقسام الرئيسية
+                      </h3>
+                      <div className="space-y-1">
+                        <FilterLink
+                          href="/#products"
+                          label="كل المعروض"
+                          active={!params.brand && !params.category && !params.search}
+                        />
+                        {categories.map((cat) => (
+                          <FilterLink
+                            key={cat.id}
+                            href={`/?category=${cat.slug}#products`}
+                            label={cat.name}
+                            active={params.category === cat.slug}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 2. Brands Section */}
+                  {uniqueBrands.length > 0 && (
+                    <div className="pt-2 border-t border-slate-50">
+                      <div className="flex items-center justify-between mb-4 px-1">
+                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
+                          العلامات التجارية
+                        </h3>
+                        <span className="text-[10px] bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-md font-bold">
+                          {uniqueBrands.length}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1 max-h-[400px] overflow-y-auto pr-2 customize-scrollbar">
+                        {uniqueBrands.map((brand) => (
+                          <FilterLink
+                            key={brand}
+                            href={`/?brand=${encodeURIComponent(brand)}#products`}
+                            label={brand}
+                            active={params.brand === brand}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Helpful Hint */}
+                  <div className="p-4 bg-brand-navy/5 rounded-2xl border border-brand-navy/5">
+                    <p className="text-[10px] text-brand-navy/40 leading-relaxed font-bold text-center">
+                      itallyaOils · جودة أصلية
+                    </p>
+                  </div>
+
+                  {/* Sidebar Promo */}
+                  <div className="pt-2">
+                    <PromoCarousel placement="sidebar_promo" aspectRatio="1/1" />
+                  </div>
+                </div>
+              </aside>
+            )}
+
             {/* Products area */}
             <div className="flex-1 min-w-0">
               {isFiltering && (
@@ -232,75 +301,6 @@ export default async function StorefrontPage({
                 </>
               )}
             </div>
-
-            {/* Desktop Sidebar - Hidden on mobile, sticky on side for desktop */}
-            {isFiltering && (
-              <aside className="hidden md:block w-64 flex-shrink-0">
-                <div className="bg-white rounded-3xl border border-slate-100 shadow-card p-6 sticky top-24 space-y-8">
-
-                  {/* 1. Main Categories Section */}
-                  {categories.length > 0 && (
-                    <div>
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">
-                        الأقسام الرئيسية
-                      </h3>
-                      <div className="space-y-1">
-                        <FilterLink
-                          href="/#products"
-                          label="كل المعروض"
-                          active={!params.brand && !params.category && !params.search}
-                        />
-                        {categories.map((cat) => (
-                          <FilterLink
-                            key={cat.id}
-                            href={`/?category=${cat.slug}#products`}
-                            label={cat.name}
-                            active={params.category === cat.slug}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 2. Brands Section */}
-                  {uniqueBrands.length > 0 && (
-                    <div className="pt-2 border-t border-slate-50">
-                      <div className="flex items-center justify-between mb-4 px-1">
-                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
-                          العلامات التجارية
-                        </h3>
-                        <span className="text-[10px] bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-md font-bold">
-                          {uniqueBrands.length}
-                        </span>
-                      </div>
-
-                      <div className="space-y-1 max-h-[400px] overflow-y-auto pr-2 customize-scrollbar">
-                        {uniqueBrands.map((brand) => (
-                          <FilterLink
-                            key={brand}
-                            href={`/?brand=${encodeURIComponent(brand)}#products`}
-                            label={brand}
-                            active={params.brand === brand}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Helpful Hint */}
-                  <div className="p-4 bg-brand-navy/5 rounded-2xl border border-brand-navy/5">
-                    <p className="text-[10px] text-brand-navy/40 leading-relaxed font-bold text-center">
-                      itallyaOils · جودة أصلية
-                    </p>
-                  </div>
-
-                  {/* Sidebar Promo */}
-                  <div className="pt-2">
-                    <PromoCarousel placement="sidebar_promo" aspectRatio="1/1" />
-                  </div>
-                </div>
-              </aside>
-            )}
           </div>
         </section>
 

@@ -5,13 +5,33 @@ import axios from "axios";
 import { Readable } from "stream";
 import type { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
+  cloud_name: cloudName,
+  api_key: apiKey,
+  api_secret: apiSecret,
 });
 
 export async function POST(req: NextRequest) {
+  // Validate credentials first
+  if (!cloudName || !apiKey || !apiSecret) {
+    console.error("[ImageGrabber] Missing Cloudinary credentials:", {
+      cloudName: !!cloudName,
+      apiKey: !!apiKey,
+      apiSecret: !!apiSecret,
+    });
+    return NextResponse.json(
+      {
+        error: "إعدادات Cloudinary غير مكتملة في ملف .env",
+        details: "CLOUDINARY_CLOUD_NAME أو CLOUDINARY_API_KEY أو CLOUDINARY_API_SECRET غير موجودة أو فارغة",
+      },
+      { status: 500 }
+    );
+  }
+
   try {
     const { productId, imageUrl } = await req.json();
 
@@ -31,7 +51,8 @@ export async function POST(req: NextRequest) {
         timeout: 30000,
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
         },
       });
     } catch (downloadErr: any) {
@@ -43,9 +64,17 @@ export async function POST(req: NextRequest) {
     }
 
     const imageBuffer = Buffer.from(imageResponse.data);
-    console.log(`[ImageGrabber] Downloaded ${imageBuffer.length} bytes. Uploading to Cloudinary...`);
+    const contentType = (imageResponse.headers["content-type"] as string) || "image/jpeg";
+    console.log(`[ImageGrabber] Downloaded ${imageBuffer.length} bytes (${contentType}). Uploading to Cloudinary...`);
 
-    // Upload to Cloudinary
+    if (imageBuffer.length < 100) {
+      return NextResponse.json(
+        { error: "الصورة المحملة صغيرة جداً أو فارغة، تحقق من رابط المصدر" },
+        { status: 422 }
+      );
+    }
+
+    // Upload to Cloudinary via stream
     const uploadResult = await new Promise<{ secure_url: string }>(
       (resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
@@ -53,23 +82,27 @@ export async function POST(req: NextRequest) {
             folder: "italyaoils/products",
             resource_type: "image",
             transformation: [
-              { width: 800, height: 800, crop: "fill", gravity: "center" },
+              { width: 800, height: 800, crop: "pad", background: "white" },
               { quality: "auto:good", fetch_format: "auto" },
             ],
           },
-          (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
+          (
+            error: UploadApiErrorResponse | undefined,
+            result: UploadApiResponse | undefined
+          ) => {
             if (error || !result) {
-              console.error("[ImageGrabber] Cloudinary Stream Error:", error);
-              reject(error || new Error("Upload failed"));
-            }
-            else {
+              console.error(
+                "[ImageGrabber] Cloudinary Stream Error:",
+                JSON.stringify(error)
+              );
+              reject(new Error(error?.message || "Upload to Cloudinary failed"));
+            } else {
               console.log("[ImageGrabber] Cloudinary Success:", result.secure_url);
               resolve(result as { secure_url: string });
             }
           }
         );
 
-        // Convert buffer to stream
         const readable = new Readable();
         readable.push(imageBuffer);
         readable.push(null);
@@ -77,7 +110,7 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    // Save Cloudinary URL to product in DB
+    // Save URL to product in DB
     console.log(`[ImageGrabber] Updating DB for product ${productId}...`);
     const updatedProduct = await prisma.product.update({
       where: { id: productId },
@@ -91,9 +124,12 @@ export async function POST(req: NextRequest) {
       cloudinaryUrl: uploadResult.secure_url,
     });
   } catch (err: any) {
-    console.error("image-grabber assign error:", err);
+    console.error("image-grabber assign error:", err.message || err);
     return NextResponse.json(
-      { error: "فشل في رفع الصورة أو حفظها", details: err.message || "خطأ غير معروف" },
+      {
+        error: "فشل في رفع الصورة أو حفظها",
+        details: err.message || "خطأ غير معروف",
+      },
       { status: 500 }
     );
   }
