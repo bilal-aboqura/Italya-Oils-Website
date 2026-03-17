@@ -65,7 +65,7 @@ export function buildWhatsAppUrl(
   form: { name: string; phone: string; address: string }
 ): string {
   const whatsappNumber =
-    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "966500000000";
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "201112678333";
   const order: OrderSummary = {
     items: items.map((item) => ({
       sku: item.id,

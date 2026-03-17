@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const ADMIN = process.env.NEXT_PUBLIC_ADMIN_PATH ?? "/admin-panel";
+const ADMIN = process.env.NEXT_PUBLIC_ADMIN_PATH ?? "/italya-ops-2026";
 
 interface Category {
   id: string;
