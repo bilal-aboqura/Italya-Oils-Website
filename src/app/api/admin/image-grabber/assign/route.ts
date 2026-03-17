@@ -33,13 +33,29 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { productId, imageUrl } = await req.json();
+    const { productId, imageUrl: rawImageUrl } = await req.json();
 
-    if (!productId || !imageUrl) {
+    if (!productId || !rawImageUrl) {
       return NextResponse.json(
         { error: "productId و imageUrl مطلوبان" },
         { status: 400 }
       );
+    }
+
+    // Extract real URL if it's a Next.js image optimizer URL (/_next/image?url=...)
+    let imageUrl = rawImageUrl;
+    try {
+      const parsed = new URL(rawImageUrl);
+      if (parsed.pathname.includes("/_next/image")) {
+        const realUrl = parsed.searchParams.get("url");
+        if (realUrl) {
+          // If url is relative (starts with /), prepend the origin
+          imageUrl = realUrl.startsWith("http") ? realUrl : `${parsed.origin}${realUrl}`;
+          console.log(`[ImageGrabber] Unwrapped Next.js image URL: ${rawImageUrl} -> ${imageUrl}`);
+        }
+      }
+    } catch {
+      // keep original url if parsing fails
     }
 
     // Download image buffer from URL
@@ -49,6 +65,7 @@ export async function POST(req: NextRequest) {
       imageResponse = await axios.get(imageUrl, {
         responseType: "arraybuffer",
         timeout: 30000,
+        maxRedirects: 5,
         headers: {
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
