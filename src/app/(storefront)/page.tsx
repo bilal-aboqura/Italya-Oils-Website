@@ -157,9 +157,85 @@ export default async function StorefrontPage({
         {/* ── PRODUCT LISTING ─────────────────────── */}
         <section className="py-4" id="products">
           <div className="flex flex-col md:flex-row gap-6">
-            {/* Sidebar */}
+            {/* Products area */}
+            <div className="flex-1 min-w-0">
+              {isFiltering && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-black text-brand-navy flex items-center gap-3">
+                    <span className="size-3 bg-brand-orange rounded-full flex-shrink-0" />
+                    {params.category ? (
+                      <span className="truncate">تصفح قسم: <span className="text-brand-orange">{categories.find(c => c.slug === params.category)?.name || params.category}</span></span>
+                    ) : params.brand ? (
+                      <span className="truncate">منتجات العلامة التجارية: <span className="text-brand-orange">{params.brand}</span></span>
+                    ) : params.search ? (
+                      <span className="truncate">نتائج البحث عن: <span className="text-brand-orange">{params.search}</span></span>
+                    ) : (
+                      "جميع المنتجات"
+                    )}
+                  </h2>
+                  <p className="text-slate-400 text-sm mt-1.5 font-medium">يتم عرض <span className="text-brand-navy font-bold">{totalCount}</span> منتج متاح</p>
+
+                  {/* Mobile Filters (Horizontal Scrollable Chips - app like UX) */}
+                  <div className="md:hidden mt-6 flex flex-col gap-3">
+                    {/* Categories Chips */}
+                    {categories.length > 0 && (
+                      <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar snap-x">
+                        <a 
+                          href="/#products" 
+                          className={`shrink-0 snap-start px-5 py-2.5 rounded-2xl text-sm font-bold border transition-all ${!params.brand && !params.category && !params.search ? 'bg-brand-orange text-white border-brand-orange shadow-lg shadow-brand-orange/30' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-orange/50 active:scale-95'}`}
+                        >
+                          الكل
+                        </a>
+                        {categories.map((cat) => (
+                          <a 
+                            key={cat.id}
+                            href={`/?category=${cat.slug}#products`}
+                            className={`shrink-0 snap-start px-5 py-2.5 rounded-2xl text-sm font-bold border transition-all ${params.category === cat.slug ? 'bg-brand-orange text-white border-brand-orange shadow-lg shadow-brand-orange/30' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-orange/50 active:scale-95'}`}
+                          >
+                            {cat.name}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Brands Chips */}
+                    {uniqueBrands.length > 0 && (
+                      <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar snap-x">
+                        {uniqueBrands.map((brand) => (
+                          <a 
+                            key={brand}
+                            href={`/?brand=${encodeURIComponent(brand)}#products`}
+                            className={`shrink-0 snap-start px-4 py-2 rounded-xl text-xs font-bold border transition-all ${params.brand === brand ? 'bg-brand-navy text-white border-brand-navy shadow-md shadow-brand-navy/20' : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-brand-navy/50 active:scale-95'}`}
+                          >
+                            {brand}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Filtered view: normal paginated grid ── */}
+              {isFiltering && (
+                <>
+                  <ProductList products={products} />
+                  <div className="mt-8">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      totalItems={totalCount}
+                      pageSize={PAGE_SIZE}
+                      theme="light"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Desktop Sidebar - Hidden on mobile, sticky on side for desktop */}
             {isFiltering && (
-              <aside className="w-full md:w-64 flex-shrink-0">
+              <aside className="hidden md:block w-64 flex-shrink-0">
                 <div className="bg-white rounded-3xl border border-slate-100 shadow-card p-6 sticky top-24 space-y-8">
 
                   {/* 1. Main Categories Section */}
@@ -170,14 +246,14 @@ export default async function StorefrontPage({
                       </h3>
                       <div className="space-y-1">
                         <FilterLink
-                          href="/?"
+                          href="/#products"
                           label="كل المعروض"
                           active={!params.brand && !params.category && !params.search}
                         />
                         {categories.map((cat) => (
                           <FilterLink
                             key={cat.id}
-                            href={`/?category=${cat.slug}`}
+                            href={`/?category=${cat.slug}#products`}
                             label={cat.name}
                             active={params.category === cat.slug}
                           />
@@ -202,7 +278,7 @@ export default async function StorefrontPage({
                         {uniqueBrands.map((brand) => (
                           <FilterLink
                             key={brand}
-                            href={`/?brand=${encodeURIComponent(brand)}`}
+                            href={`/?brand=${encodeURIComponent(brand)}#products`}
                             label={brand}
                             active={params.brand === brand}
                           />
@@ -225,32 +301,6 @@ export default async function StorefrontPage({
                 </div>
               </aside>
             )}
-
-            {/* Products area */}
-            <div className="flex-1 min-w-0">
-
-
-              {/* ── Filtered view: normal paginated grid ── */}
-              {isFiltering ? (
-                <>
-                  <ProductList products={products} />
-                  <div className="mt-8">
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      totalItems={totalCount}
-                      pageSize={PAGE_SIZE}
-                      theme="light"
-                    />
-                  </div>
-                </>
-              ) : (
-                /* ── Default view: Nothing, grid is above ── */
-                <>
-
-                </>
-              )}
-            </div>
           </div>
         </section>
 

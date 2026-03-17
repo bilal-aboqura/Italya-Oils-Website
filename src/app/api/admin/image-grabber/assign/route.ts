@@ -23,16 +23,27 @@ export async function POST(req: NextRequest) {
     }
 
     // Download image buffer from URL
-    const imageResponse = await axios.get(imageUrl, {
-      responseType: "arraybuffer",
-      timeout: 30000,
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      },
-    });
+    console.log(`[ImageGrabber] Attempting to download from: ${imageUrl}`);
+    let imageResponse;
+    try {
+      imageResponse = await axios.get(imageUrl, {
+        responseType: "arraybuffer",
+        timeout: 30000,
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        },
+      });
+    } catch (downloadErr: any) {
+      console.error(`[ImageGrabber] Download failed for ${imageUrl}:`, downloadErr.message);
+      return NextResponse.json(
+        { error: "تعذر تحميل الصورة من المصدر", details: downloadErr.message },
+        { status: 502 }
+      );
+    }
 
     const imageBuffer = Buffer.from(imageResponse.data);
+    console.log(`[ImageGrabber] Downloaded ${imageBuffer.length} bytes. Uploading to Cloudinary...`);
 
     // Upload to Cloudinary
     const uploadResult = await new Promise<{ secure_url: string }>(
@@ -47,8 +58,14 @@ export async function POST(req: NextRequest) {
             ],
           },
           (error: UploadApiErrorResponse | undefined, result: UploadApiResponse | undefined) => {
-            if (error || !result) reject(error || new Error("Upload failed"));
-            else resolve(result as { secure_url: string });
+            if (error || !result) {
+              console.error("[ImageGrabber] Cloudinary Stream Error:", error);
+              reject(error || new Error("Upload failed"));
+            }
+            else {
+              console.log("[ImageGrabber] Cloudinary Success:", result.secure_url);
+              resolve(result as { secure_url: string });
+            }
           }
         );
 
@@ -61,6 +78,7 @@ export async function POST(req: NextRequest) {
     );
 
     // Save Cloudinary URL to product in DB
+    console.log(`[ImageGrabber] Updating DB for product ${productId}...`);
     const updatedProduct = await prisma.product.update({
       where: { id: productId },
       data: { imageUrl: uploadResult.secure_url },
@@ -72,11 +90,10 @@ export async function POST(req: NextRequest) {
       product: updatedProduct,
       cloudinaryUrl: uploadResult.secure_url,
     });
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "خطأ غير معروف";
-    console.error("image-grabber assign error:", msg);
+  } catch (err: any) {
+    console.error("image-grabber assign error:", err);
     return NextResponse.json(
-      { error: "فشل في رفع الصورة أو حفظها", details: msg },
+      { error: "فشل في رفع الصورة أو حفظها", details: err.message || "خطأ غير معروف" },
       { status: 500 }
     );
   }

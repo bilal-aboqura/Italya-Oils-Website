@@ -9,23 +9,40 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
+    console.log(`[PATCH /api/admin/products/${id}] Updating with body:`, body);
+
+    // Sanitize data
+    const updateData: any = {};
+    if (body.name) updateData.name = body.name;
+    
+    if (body.price !== undefined) {
+      const parsedPrice = typeof body.price === "string" ? parseFloat(body.price) : body.price;
+      if (!isNaN(parsedPrice)) {
+        updateData.price = parsedPrice;
+      }
+    }
+
+    if (body.brand !== undefined) updateData.brand = body.brand || null;
+    if (body.categoryId !== undefined) updateData.categoryId = body.categoryId || null;
+    if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl || null;
+    if (body.isActive !== undefined) updateData.isActive = body.isActive;
+
     const product = await prisma.product.update({
       where: { id },
-      data: {
-        ...(body.name && { name: body.name }),
-        ...(body.price !== undefined && { price: parseFloat(body.price) }),
-        ...(body.brand !== undefined && { brand: body.brand || null }),
-        ...(body.categoryId !== undefined && { categoryId: body.categoryId || null }),
-        ...(body.imageUrl !== undefined && { imageUrl: body.imageUrl }),
-        ...(body.isActive !== undefined && { isActive: body.isActive }),
-      },
+      data: updateData,
     });
 
     return NextResponse.json({ product });
-  } catch (err) {
-    console.error("[PATCH /api/admin/products/[id]]", err);
+  } catch (err: any) {
+    console.error(`[PATCH /api/admin/products] Error updating:`, err);
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Failed to update product." } },
+      { 
+        error: { 
+          code: "INTERNAL_ERROR", 
+          message: err.message || "Failed to update product.",
+          details: err 
+        } 
+      },
       { status: 500 }
     );
   }
