@@ -9,7 +9,7 @@ import Logo from "@/components/ui/Logo";
 import CountdownBanner from "@/components/ui/CountdownBanner";
 import Footer from "@/components/ui/Footer";
 import ReviewsSection from "@/components/ui/ReviewsSection";
-import BrandMarquee from "@/components/ui/BrandMarquee";
+// import BrandMarquee from "@/components/ui/BrandMarquee";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60; // ISR: rebuild in background every 60 seconds
@@ -313,7 +313,7 @@ export default async function StorefrontPage({
         <PromoCarousel placement="home_middle" aspectRatio="21/5" fullWidth={true} />
 
         {/* ── BRAND LOGOS MARQUEE ──────────────── */}
-        <BrandMarquee />
+        {/* <BrandMarquee /> */}
 
 
         {/* Trust/CTA sections removed */}
