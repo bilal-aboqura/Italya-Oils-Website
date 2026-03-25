@@ -124,3 +124,17 @@ model Review {
 
   @@map("reviews")
 }
+
+// ==========================================
+// BrandLogo: Logos shown in the marquee strip
+// ==========================================
+model BrandLogo {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  logoUrl   String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("brand_logos")
+}

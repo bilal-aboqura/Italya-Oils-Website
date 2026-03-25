@@ -14,6 +14,8 @@ const NAV_ITEMS = [
   { label: "البانرات الترويجية", href: `${ADMIN_PATH}/promos`, icon: "image" },
   { label: "الفئات", href: `${ADMIN_PATH}/categories`, icon: "label" },
   { label: "الشريط السفلي", href: `${ADMIN_PATH}/countdown-banner`, icon: "timer" },
+  { label: "التقييمات", href: `${ADMIN_PATH}/reviews`, icon: "star" },
+  { label: "لوجوهات الماركات", href: `${ADMIN_PATH}/brand-logos`, icon: "branding_watermark" },
 ];
 
 export default function AdminLayout({

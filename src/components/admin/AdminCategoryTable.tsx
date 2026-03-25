@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2, Edit2, Loader2, AlertCircle, UploadCloud } from "lucide-react";
+import { Trash2, Edit2, Loader2, AlertCircle, UploadCloud, GripVertical } from "lucide-react";
 import Image from "next/image";
 
 interface Category {
@@ -11,6 +11,7 @@ interface Category {
     slug: string;
     description: string | null;
     imageUrl?: string | null;
+    sortOrder?: number;
     _count?: {
         products: number;
     };
@@ -20,8 +21,9 @@ interface AdminCategoryTableProps {
     categories: Category[];
 }
 
-export default function AdminCategoryTable({ categories }: AdminCategoryTableProps) {
+export default function AdminCategoryTable({ categories: initialCategories }: AdminCategoryTableProps) {
     const router = useRouter();
+    const [categories, setCategories] = useState(initialCategories);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -30,6 +32,50 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
     const [editImageFile, setEditImageFile] = useState<File | null>(null);
     const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+    const [savingOrder, setSavingOrder] = useState(false);
+    const [dragOverId, setDragOverId] = useState<string | null>(null);
+    const dragIdRef = useRef<string | null>(null);
+
+    // ── Drag & Drop Handlers ────────────────────────────────────
+    const handleDragStart = (id: string) => { dragIdRef.current = id; };
+    const handleDragOver = (e: React.DragEvent, id: string) => { e.preventDefault(); setDragOverId(id); };
+    const handleDragEnd = () => { setDragOverId(null); dragIdRef.current = null; };
+
+    const handleDrop = async (targetId: string) => {
+        const fromId = dragIdRef.current;
+        setDragOverId(null);
+        dragIdRef.current = null;
+        if (!fromId || fromId === targetId) return;
+
+        const fromIndex = categories.findIndex((c) => c.id === fromId);
+        const toIndex = categories.findIndex((c) => c.id === targetId);
+        if (fromIndex === -1 || toIndex === -1) return;
+
+        // Optimistic update
+        const reordered = [...categories];
+        const [moved] = reordered.splice(fromIndex, 1);
+        reordered.splice(toIndex, 0, moved);
+        setCategories(reordered);
+
+        // Persist new order
+        setSavingOrder(true);
+        try {
+            await Promise.all(
+                reordered.map((cat, idx) =>
+                    fetch(`/api/admin/categories/${cat.id}`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sortOrder: idx }),
+                    })
+                )
+            );
+        } catch {
+            setError("تعذّر حفظ الترتيب الجديد.");
+        } finally {
+            setSavingOrder(false);
+        }
+    };
+    // ────────────────────────────────────────────────────────────
 
     const handleDelete = async (id: string, name: string) => {
         if (!confirm(`هل أنت متأكد من حذف التصنيف "${name}"؟`)) return;
@@ -131,9 +177,16 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
             )}
 
             <div className="card overflow-hidden">
+                {savingOrder && (
+                    <div className="bg-brand-orange/5 border-b border-brand-orange/20 px-4 py-2 flex items-center gap-2 text-brand-orange text-xs font-bold">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        جاري حفظ الترتيب...
+                    </div>
+                )}
                 <table className="w-full text-sm text-right">
                     <thead>
                         <tr className="border-b border-slate-100 bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider">
+                            <th className="py-4 px-3 font-bold w-8"></th>
                             <th className="py-4 px-6 font-bold w-16">الصورة</th>
                             <th className="py-4 px-6 font-bold">التصنيف</th>
                             <th className="py-4 px-6 font-bold">الرابط (Slug)</th>
@@ -143,7 +196,23 @@ export default function AdminCategoryTable({ categories }: AdminCategoryTablePro
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {categories.map((category) => (
-                            <tr key={category.id} className="hover:bg-slate-50/50 transition-colors group">
+                            <tr
+                                key={category.id}
+                                draggable
+                                onDragStart={() => handleDragStart(category.id)}
+                                onDragOver={(e) => handleDragOver(e, category.id)}
+                                onDrop={() => handleDrop(category.id)}
+                                onDragEnd={handleDragEnd}
+                                className={`transition-colors group cursor-default ${
+                                    dragOverId === category.id
+                                        ? "bg-brand-orange/5 border-t-2 border-brand-orange"
+                                        : "hover:bg-slate-50/50"
+                                }`}
+                            >
+                                {/* Drag handle */}
+                                <td className="py-4 px-3">
+                                    <GripVertical className="w-4 h-4 text-slate-300 group-hover:text-slate-400 cursor-grab active:cursor-grabbing transition-colors" />
+                                </td>
                                 <td className="py-4 px-6">
                                     <div className="w-12 h-12 bg-white rounded-xl border border-slate-200 overflow-hidden flex items-center justify-center relative">
                                         {category.imageUrl ? (

@@ -9,7 +9,7 @@ import Logo from "@/components/ui/Logo";
 import CountdownBanner from "@/components/ui/CountdownBanner";
 import Footer from "@/components/ui/Footer";
 import ReviewsSection from "@/components/ui/ReviewsSection";
-import ReviewForm from "@/components/ui/ReviewForm";
+import BrandMarquee from "@/components/ui/BrandMarquee";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60; // ISR: rebuild in background every 60 seconds
@@ -312,6 +312,9 @@ export default async function StorefrontPage({
         {/* ── MIDDLE BANNER (full-width, between content) ────── */}
         <PromoCarousel placement="home_middle" aspectRatio="21/5" fullWidth={true} />
 
+        {/* ── BRAND LOGOS MARQUEE ──────────────── */}
+        <BrandMarquee />
+
 
         {/* Trust/CTA sections removed */}
         {false && (
@@ -391,22 +394,18 @@ export default async function StorefrontPage({
 
         {/* ── SOCIAL PROOF & REVIEWS ───────────────────────────── */}
         <section className="py-20 relative overflow-hidden" id="social-proof">
-          {/* Background accents */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-orange/5 blur-[100px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-navy/5 blur-[100px] rounded-full pointer-events-none translate-y-1/2 -translate-x-1/3"></div>
-          
           <div className="max-w-[1400px] mx-auto relative z-10">
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-16 max-w-4xl mx-auto">
-              <div className="text-center space-y-3 p-6 bg-white/50 backdrop-blur-sm rounded-[2rem] border border-white shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:-translate-y-1 transition-transform duration-300">
+              <div className="text-center space-y-3 p-6 hover:-translate-y-1 transition-transform duration-300">
                 <div className="text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-brand-navy to-blue-600">10K+</div>
                 <div className="text-slate-600 font-bold text-sm lg:text-base">عميل يثق بخدماتنا</div>
               </div>
-              <div className="text-center space-y-3 p-6 bg-white/50 backdrop-blur-sm rounded-[2rem] border border-white shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:-translate-y-1 transition-transform duration-300">
+              <div className="text-center space-y-3 p-6 hover:-translate-y-1 transition-transform duration-300">
                 <div className="text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-brand-orange to-amber-500">100%</div>
                 <div className="text-slate-600 font-bold text-sm lg:text-base">منتجات أصلية ومضمونة</div>
               </div>
-              <div className="text-center space-y-3 p-6 bg-white/50 backdrop-blur-sm rounded-[2rem] border border-white shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:-translate-y-1 transition-transform duration-300">
+              <div className="text-center space-y-3 p-6 hover:-translate-y-1 transition-transform duration-300">
                 <div className="text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-brand-navy to-blue-600">24/7</div>
                 <div className="text-slate-600 font-bold text-sm lg:text-base">دعم فني متواصل</div>
               </div>
@@ -418,7 +417,7 @@ export default async function StorefrontPage({
               <p className="text-slate-500 max-w-md mx-auto leading-relaxed">انضم للآلاف من عملائنا الراضين عن جودة منتجاتنا وخدماتنا</p>
               
               <div className="pt-6 flex justify-center">
-                <a href="#add-review" className="group relative overflow-hidden rounded-full bg-white border border-slate-200 px-8 py-3.5 font-bold text-brand-navy shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_30px_rgb(255,107,0,0.15)] hover:border-brand-orange/30 transition-all hover:-translate-y-1 flex items-center gap-3">
+                <a href="/review" className="group relative overflow-hidden rounded-full bg-white border border-slate-200 px-8 py-3.5 font-bold text-brand-navy shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:shadow-[0_8px_30px_rgb(255,107,0,0.15)] hover:border-brand-orange/30 transition-all hover:-translate-y-1 flex items-center gap-3">
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-brand-orange/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <span className="text-brand-orange text-xl drop-shadow-sm scale-110 group-hover:scale-125 transition-transform duration-300">★</span>
                   <span className="relative z-10">شاركنا رأيك</span>
@@ -429,25 +428,6 @@ export default async function StorefrontPage({
             {/* Testimonials Track */}
             <div className="-mx-4 lg:mx-0">
               <ReviewsSection />
-            </div>
-
-            <div id="add-review" className="max-w-2xl mx-auto mt-20 scroll-mt-32">
-              <div className="relative bg-white rounded-[2.5rem] p-8 lg:p-12 border border-slate-100 shadow-[0_8px_40px_rgb(0,0,0,0.04)] overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-orange/5 blur-[80px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4 group-hover:bg-brand-orange/10 transition-colors duration-700" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-brand-navy/5 blur-[80px] rounded-full pointer-events-none translate-y-1/4 -translate-x-1/4 group-hover:bg-brand-navy/10 transition-colors duration-700" />
-                
-                <div className="relative z-10 mb-8 text-center text-balance">
-                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-orange-50 text-brand-orange mb-4 shadow-sm">
-                    <span className="material-symbols-outlined text-2xl">rate_review</span>
-                  </div>
-                  <h2 className="text-3xl font-black text-brand-navy mb-3">أضف تقييمك</h2>
-                  <p className="text-slate-500 text-sm leading-relaxed max-w-sm mx-auto">أخبرنا عن تجربتك معنا، رأيك يصنع الفرق ويساعدنا لتقديم الأفضل دائماً</p>
-                </div>
-                
-                <div className="relative z-10">
-                  <ReviewForm />
-                </div>
-              </div>
             </div>
           </div>
         </section>

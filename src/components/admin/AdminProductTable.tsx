@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { ChevronUp, ChevronDown, Loader2 } from "lucide-react";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ProductWithCategory = any;
@@ -18,12 +19,43 @@ interface AdminProductTableProps {
   adminPath: string;
 }
 
-export default function AdminProductTable({ products, categories, adminPath }: AdminProductTableProps) {
+export default function AdminProductTable({ products: initialProducts, categories, adminPath }: AdminProductTableProps) {
   const router = useRouter();
+  const [products, setProducts] = useState(initialProducts);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkCategoryId, setBulkCategoryId] = useState("");
   const [isApplying, setIsApplying] = useState(false);
   const [message, setMessage] = useState("");
+  const [movingId, setMovingId] = useState<string | null>(null);
+
+  // ── Move product up or down ──────────────────────────────
+  const moveProduct = async (index: number, direction: "up" | "down") => {
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= products.length) return;
+
+    const reordered = [...products];
+    [reordered[index], reordered[swapIndex]] = [reordered[swapIndex], reordered[index]];
+    setProducts(reordered);
+
+    const id = products[index].id;
+    setMovingId(id);
+    try {
+      await Promise.all(
+        reordered.map((p, idx) =>
+          fetch(`/api/admin/products/${p.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sortOrder: idx }),
+          })
+        )
+      );
+    } catch {
+      setMessage("❌ تعذّر حفظ الترتيب");
+    } finally {
+      setMovingId(null);
+    }
+  };
+  // ────────────────────────────────────────────────────────────
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -111,6 +143,7 @@ export default function AdminProductTable({ products, categories, adminPath }: A
         <table className="w-full text-sm whitespace-nowrap">
           <thead>
             <tr className="border-b border-dark-500 text-gray-400 text-xs uppercase">
+              <th className="py-3 px-3 text-start">ترتيب</th>
               <th className="py-3 px-3 text-start sticky left-0 bg-dark-800 z-10">
                 <input
                   type="checkbox"
@@ -140,8 +173,29 @@ export default function AdminProductTable({ products, categories, adminPath }: A
             </tr>
           </thead>
           <tbody className="divide-y divide-dark-500">
-            {products.map((product) => (
+            {products.map((product, index) => (
               <tr key={product.id} className="hover:bg-dark-700/40 transition-colors">
+                {/* Sort buttons */}
+                <td className="py-3 px-2">
+                  <div className="flex flex-col gap-0.5">
+                    <button
+                      onClick={() => moveProduct(index, "up")}
+                      disabled={index === 0 || movingId === product.id}
+                      className="p-0.5 text-slate-400 hover:text-brand-orange disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      title="تحريك للأعلى"
+                    >
+                      {movingId === product.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ChevronUp className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      onClick={() => moveProduct(index, "down")}
+                      disabled={index === products.length - 1 || movingId === product.id}
+                      className="p-0.5 text-slate-400 hover:text-brand-orange disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                      title="تحريك للأسفل"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </td>
                 {/* Checkbox */}
                 <td className="py-3 px-3 sticky left-0 bg-dark-800">
                   <input
