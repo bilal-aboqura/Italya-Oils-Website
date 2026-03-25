@@ -1,7 +1,5 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Image from "next/image";
+import { prisma } from "@/lib/prisma";
 
 const FALLBACK_BRANDS = [
   { name: "Mobil 1" },
@@ -16,28 +14,13 @@ const FALLBACK_BRANDS = [
   { name: "Pennzoil" },
 ];
 
-interface BrandLogo {
-  id: string;
-  name: string;
-  logoUrl: string;
-}
-
-export default function BrandMarquee() {
-  const [logos, setLogos] = useState<BrandLogo[]>([]);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/admin/brand-logos")
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setLogos(data);
-      })
-      .catch(() => {})
-      .finally(() => setLoaded(true));
-  }, []);
+export default async function BrandMarquee() {
+  const logos = await prisma.brandLogo.findMany({
+    where: { isActive: true },
+    orderBy: { sortOrder: "asc" },
+  });
 
   const hasLogos = logos.length > 0;
-
   const baseItems = hasLogos ? logos : FALLBACK_BRANDS;
 
   return (
@@ -59,7 +42,7 @@ export default function BrandMarquee() {
               {hasLogos ? (
                 <div className="relative w-full h-full grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100">
                   <Image
-                    src={(item as BrandLogo).logoUrl}
+                    src={(item as any).logoUrl}
                     alt={item.name}
                     fill
                     className="object-contain"
@@ -85,7 +68,7 @@ export default function BrandMarquee() {
               {hasLogos ? (
                 <div className="relative w-full h-full grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100">
                   <Image
-                    src={(item as BrandLogo).logoUrl}
+                    src={(item as any).logoUrl}
                     alt={item.name}
                     fill
                     className="object-contain"
