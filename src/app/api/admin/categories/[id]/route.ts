@@ -25,6 +25,7 @@ export async function PATCH(
         const name = typeof body.name === "string" ? body.name.trim() : undefined;
         const description = typeof body.description === "string" ? body.description.trim() || null : undefined;
         const imageUrl = typeof body.imageUrl === "string" ? body.imageUrl.trim() || null : undefined;
+        const sortOrder = typeof body.sortOrder === "number" ? body.sortOrder : undefined;
 
         let updateData: any = {};
         if (name !== undefined) {
@@ -44,6 +45,10 @@ export async function PATCH(
 
         if (imageUrl !== undefined) {
             updateData.imageUrl = imageUrl;
+        }
+
+        if (sortOrder !== undefined) {
+            updateData.sortOrder = sortOrder;
         }
 
         const category = await prisma.category.update({
