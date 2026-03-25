@@ -17,7 +17,7 @@ export default async function ProductPage({ params }: PageProps) {
 
   const product = await prisma.product.findUnique({
     where: { id },
-    include: { category: true },
+    include: { categories: { include: { category: { select: { id: true, name: true, slug: true } } } } },
   });
 
   if (!product || !product.isActive) {
@@ -45,13 +45,13 @@ export default async function ProductPage({ params }: PageProps) {
             الرئيسية
           </Link>
           <span className="material-symbols-outlined text-xs">chevron_left</span>
-          {product.category && (
+          {product.categories?.[0]?.category && (
             <>
               <Link
                 className="hover:text-brand-orange transition-colors"
-                href={`/?category=${product.category.slug}`}
+                href={`/?category=${product.categories[0].category.slug}`}
               >
-                {product.category.name}
+                {product.categories[0].category.name}
               </Link>
               <span className="material-symbols-outlined text-xs">chevron_left</span>
             </>

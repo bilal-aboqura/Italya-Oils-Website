@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
         isActive: true,
         ...(brand ? { brand: { equals: brand } } : {}),
         ...(category
-          ? { category: { slug: { equals: category } } }
+          ? { categories: { some: { category: { slug: { equals: category } } } } }
           : {}),
         ...(search
           ? {
@@ -26,11 +26,11 @@ export async function GET(request: NextRequest) {
           : {}),
       },
       include: {
-        category: {
-          select: { name: true, slug: true },
+        categories: {
+          include: { category: { select: { name: true, slug: true } } },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: category ? { sortOrder: "asc" } : { createdAt: "desc" },
     });
 
     const response = NextResponse.json({ products });

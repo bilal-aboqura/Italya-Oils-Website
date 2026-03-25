@@ -21,13 +21,13 @@ export default async function AdminProductsPage({ searchParams }: Props) {
 
   const [products, totalCount, categories] = await Promise.all([
     prisma.product.findMany({
-      include: { category: { select: { name: true } } },
+      include: { categories: { include: { category: { select: { name: true } } } } },
       orderBy: { createdAt: "desc" },
       skip,
       take: PAGE_SIZE,
     }),
     prisma.product.count(),
-    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
   ]);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);

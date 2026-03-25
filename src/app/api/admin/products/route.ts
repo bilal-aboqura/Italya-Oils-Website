@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { sku, name, price, brand, viscosity, categoryId, description, imageUrl } = body;
+    const { sku, name, price, brand, viscosity, categoryIds, description, imageUrl } = body;
 
     if (!sku || !name || price === undefined || price === null) {
       return NextResponse.json(
@@ -40,10 +40,16 @@ export async function POST(request: NextRequest) {
         viscosity: viscosity || null,
         description: description || null,
         imageUrl: imageUrl || null,
-        categoryId: categoryId || null,
       },
-      include: { category: { select: { name: true } } },
     });
+
+    // Create category associations if provided
+    const catIds: string[] = Array.isArray(categoryIds) ? categoryIds.filter(Boolean) : [];
+    if (catIds.length > 0) {
+      await prisma.productCategory.createMany({
+        data: catIds.map((categoryId) => ({ productId: product.id, categoryId })),
+      });
+    }
 
     return NextResponse.json({ product }, { status: 201 });
   } catch (err) {
@@ -54,3 +60,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

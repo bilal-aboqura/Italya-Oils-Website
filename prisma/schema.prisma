@@ -19,10 +19,11 @@ model Category {
   slug        String    @unique
   description String?
   imageUrl    String?
+  sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  products    Product[]
+  products    ProductCategory[]
 
   @@map("categories")
 }
@@ -36,10 +37,13 @@ model Product {
   name              String
   description       String?
   price             Float                    // سعر البيع
+  salePrice         Float?                   // سعر البيع بعد الخصم (null = لا خصم)
+  isOnSale          Boolean   @default(false)
   brand             String?
   viscosity         String?                  // KM
   imageUrl          String?
   isActive          Boolean   @default(true)
+  sortOrder         Int       @default(0)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -52,10 +56,23 @@ model Product {
   countryOfOrigin   String?                  // بلد المنشاءة
   unit              String?                  // الوحدة
 
-  categoryId        String?   @db.ObjectId
-  category          Category? @relation(fields: [categoryId], references: [id])
+  categories        ProductCategory[]
 
   @@map("products")
+}
+
+// ==========================================
+// ProductCategory: Many-to-many join table
+// ==========================================
+model ProductCategory {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId  String   @db.ObjectId
+  categoryId String   @db.ObjectId
+  product    Product  @relation(fields: [productId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([productId, categoryId])
+  @@map("product_categories")
 }
 
 // ==========================================
@@ -93,3 +110,17 @@ model CountdownBanner {
   @@map("countdown_banners")
 }
 
+// ==========================================
+// Review: Customer reviews for the store
+// ==========================================
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  content   String
+  rating    Int      @default(5)  // 1-5 stars
+  status    String   @default("pending")  // pending | approved | rejected
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+}

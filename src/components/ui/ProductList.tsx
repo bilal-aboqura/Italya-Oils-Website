@@ -5,13 +5,19 @@ import Link from "next/link";
 import { useCartStore } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/whatsapp";
 
+interface ProductCategory {
+  category: { name: string; slug: string };
+}
+
 interface Product {
   id: string;
   name: string;
   price: number;
+  salePrice?: number | null;
+  isOnSale?: boolean;
   brand: string | null;
   imageUrl: string | null;
-  category: { name: string; slug: string } | null;
+  categories?: ProductCategory[];
   sku?: string;
   viscosity?: string | null;
   description?: string | null;
@@ -49,7 +55,7 @@ export default function ProductList({ products }: ProductListProps) {
             addItem({
               id: product.id,
               name: product.name,
-              price: product.price,
+              price: (product.isOnSale && product.salePrice) ? product.salePrice : product.price,
               imageUrl: product.imageUrl,
             })
           }
@@ -73,6 +79,9 @@ function ProductCard({
     "TotalEnergies": { badge: "bg-blue-50 text-blue-600 border-blue-100", ring: "group-hover:border-blue-200" },
   };
   const colors = product.brand ? (brandColors[product.brand] ?? { badge: "badge-muted", ring: "group-hover:border-slate-200" }) : { badge: "badge-muted", ring: "" };
+
+  const primaryCategory = product.categories?.[0]?.category;
+  const displayPrice = (product.isOnSale && product.salePrice) ? product.salePrice : product.price;
 
   return (
     <div className={`group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-card hover:shadow-vibrant transition-all duration-300 flex flex-col ${colors.ring}`}>
@@ -104,13 +113,22 @@ function ProductCard({
             </span>
           </div>
         )}
+
+        {/* Sale badge */}
+        {product.isOnSale && product.salePrice && (
+          <div className="absolute top-3 left-3">
+            <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg">
+              خصم
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
-        {product.category && (
+        {primaryCategory && (
           <p className="text-xs font-bold text-slate-400 mb-1.5 uppercase tracking-wide">
-            {product.category.name}
+            {primaryCategory.name}
           </p>
         )}
         <Link href={`/products/${product.id}`} className="block">
@@ -124,10 +142,24 @@ function ProductCard({
 
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
           <div>
-            <span className="text-2xl font-black text-brand-navy">
-              {formatPrice(product.price)}
-            </span>
-            <span className="text-xs text-slate-400 mr-1">ج.م</span>
+            {product.isOnSale && product.salePrice ? (
+              <div className="flex flex-col">
+                <span className="text-xs text-slate-400 line-through leading-tight">
+                  {formatPrice(product.price)} ج.م
+                </span>
+                <span className="text-2xl font-black text-red-600 leading-tight">
+                  {formatPrice(displayPrice)}
+                  <span className="text-xs text-red-400 mr-1">ج.م</span>
+                </span>
+              </div>
+            ) : (
+              <div>
+                <span className="text-2xl font-black text-brand-navy">
+                  {formatPrice(product.price)}
+                </span>
+                <span className="text-xs text-slate-400 mr-1">ج.م</span>
+              </div>
+            )}
           </div>
           <button
             onClick={onAddToCart}

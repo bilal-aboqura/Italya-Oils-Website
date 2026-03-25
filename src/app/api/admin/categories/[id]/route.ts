@@ -88,9 +88,9 @@ export async function DELETE(
     try {
         const { id } = await params;
 
-        // Check if there are products linked to this category
+        // Check if there are products linked to this category via join table
         const productCount = await prisma.product.count({
-            where: { categoryId: id }
+            where: { categories: { some: { categoryId: id } } }
         });
 
         if (productCount > 0) {

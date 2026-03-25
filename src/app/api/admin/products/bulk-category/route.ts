@@ -32,12 +32,20 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const result = await prisma.product.updateMany({
-      where: { id: { in: productIds } },
-      data: { categoryId },
-    });
+    // Add category association to each product (join table - skip if already exists)
+    let updatedCount = 0;
+    for (const productId of productIds) {
+      try {
+        await prisma.productCategory.create({
+          data: { productId, categoryId },
+        });
+        updatedCount++;
+      } catch {
+        // Skip if duplicate (product already in this category)
+      }
+    }
 
-    return NextResponse.json({ updatedCount: result.count });
+    return NextResponse.json({ updatedCount });
   } catch (err) {
     console.error("[PATCH /api/admin/products/bulk-category]", err);
     return NextResponse.json(

@@ -8,7 +8,7 @@ const ADMIN_PATH = `/${process.env.ADMIN_SECRET_PATH ?? "admin-panel"}`;
 export default async function AdminDashboardPage() {
   const [productCount, uncategorized, missingImages, promoCount] = await Promise.all([
     prisma.product.count(),
-    prisma.product.count({ where: { categoryId: null } }),
+    prisma.product.count({ where: { categories: { none: {} } } }),
     prisma.product.count({ where: { imageUrl: null } }),
     prisma.promoBanner.count({ where: { isActive: true } }),
   ]);

@@ -26,7 +26,6 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // ── Server-side validation (FR-008) ────────────────────────────────────────
     const name = typeof body.name === "string" ? body.name.trim() : "";
     if (!name) {
         return NextResponse.json(
@@ -35,13 +34,11 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // Optional description and image (FR-009)
     const description =
         typeof body.description === "string" ? body.description.trim() || null : null;
     const imageUrl =
         typeof body.imageUrl === "string" ? body.imageUrl.trim() || null : null;
 
-    // ── Auto-generate slug (FR-011) ───────────────────────────────────────────
     const slug = generateSlug(name);
 
     if (!slug) {
@@ -56,10 +53,16 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // ── Persist to MongoDB via Prisma (FR-012) ────────────────────────────────
     try {
+        // Get the max sortOrder to append new categories at the end
+        const lastCat = await prisma.category.findFirst({
+            orderBy: { sortOrder: "desc" },
+            select: { sortOrder: true },
+        });
+        const nextSortOrder = (lastCat?.sortOrder ?? -1) + 1;
+
         const category = await prisma.category.create({
-            data: { name, slug, description: description ?? undefined, imageUrl },
+            data: { name, slug, description: description ?? undefined, imageUrl, sortOrder: nextSortOrder },
         });
 
         return NextResponse.json({ success: true, category }, { status: 201 });
@@ -93,18 +96,53 @@ export async function POST(request: NextRequest) {
 }
 
 // ── GET /api/admin/categories ─────────────────────────────────────────────────
-// Handy for refreshing the category list from the client without a full page reload.
 export async function GET() {
     try {
         const categories = await prisma.category.findMany({
-            orderBy: { name: "asc" },
-            select: { id: true, name: true, slug: true },
+            orderBy: { sortOrder: "asc" },
+            select: { id: true, name: true, slug: true, sortOrder: true },
         });
         return NextResponse.json({ categories });
     } catch (err) {
         console.error("[GET /api/admin/categories]", err);
         return NextResponse.json(
             { error: { code: "INTERNAL_ERROR", message: "تعذّر تحميل التصنيفات." } },
+            { status: 500 }
+        );
+    }
+}
+
+// ── PATCH /api/admin/categories ───────────────────────────────────────────────
+// Body: { id: string, sortOrder: number } — update sort order of a category
+// OR: { id: string, name?, description?, imageUrl? } — update category fields
+export async function PATCH(request: NextRequest) {
+    try {
+        const body = await request.json();
+        const { id } = body;
+
+        if (!id) {
+            return NextResponse.json(
+                { error: { code: "VALIDATION_ERROR", message: "id مطلوب." } },
+                { status: 400 }
+            );
+        }
+
+        const updateData: Record<string, unknown> = {};
+        if (body.sortOrder !== undefined) updateData.sortOrder = body.sortOrder;
+        if (body.name !== undefined) updateData.name = body.name;
+        if (body.description !== undefined) updateData.description = body.description || null;
+        if (body.imageUrl !== undefined) updateData.imageUrl = body.imageUrl || null;
+
+        const category = await prisma.category.update({
+            where: { id },
+            data: updateData,
+        });
+
+        return NextResponse.json({ success: true, category });
+    } catch (err) {
+        console.error("[PATCH /api/admin/categories]", err);
+        return NextResponse.json(
+            { error: { code: "INTERNAL_ERROR", message: "تعذّر تحديث التصنيف." } },
             { status: 500 }
         );
     }

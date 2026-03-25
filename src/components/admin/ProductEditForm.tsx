@@ -4,19 +4,25 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface ProductCategory {
+  category: { id: string; name: string };
+}
+
 interface Product {
   id: string;
   sku: string;
   name: string;
   price: number;
+  salePrice?: number | null;
+  isOnSale?: boolean;
   brand: string | null;
   imageUrl: string | null;
-  categoryId: string | null;
-}
-
-interface Category {
-  id: string;
-  name: string;
+  categories?: ProductCategory[];
 }
 
 interface ProductEditFormProps {
@@ -26,11 +32,15 @@ interface ProductEditFormProps {
 
 export default function ProductEditForm({ product, categories }: ProductEditFormProps) {
   const router = useRouter();
+  const currentCategoryIds = product.categories?.map(pc => pc.category.id) ?? [];
+  
   const [form, setForm] = useState({
     name: product.name,
     price: product.price,
+    salePrice: product.salePrice ?? "",
+    isOnSale: product.isOnSale ?? false,
     brand: product.brand ?? "",
-    categoryId: product.categoryId ?? "",
+    categoryIds: currentCategoryIds,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(product.imageUrl);
@@ -43,6 +53,15 @@ export default function ProductEditForm({ product, categories }: ProductEditForm
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
+  };
+
+  const toggleCategory = (id: string) => {
+    setForm(prev => ({
+      ...prev,
+      categoryIds: prev.categoryIds.includes(id)
+        ? prev.categoryIds.filter(c => c !== id)
+        : [...prev.categoryIds, id],
+    }));
   };
 
   const handleSave = async () => {
@@ -68,7 +87,12 @@ export default function ProductEditForm({ product, categories }: ProductEditForm
       const res = await fetch(`/api/admin/products/${product.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, imageUrl }),
+        body: JSON.stringify({
+          ...form,
+          salePrice: form.salePrice === "" ? null : parseFloat(String(form.salePrice)),
+          price: typeof form.price === "string" ? parseFloat(form.price) : form.price,
+          imageUrl,
+        }),
       });
 
       if (res.ok) {
@@ -147,19 +171,61 @@ export default function ProductEditForm({ product, categories }: ProductEditForm
         </div>
       </div>
 
-      {/* Category */}
+      {/* Sale Price */}
+      <div className="border border-dashed border-dark-500 rounded-xl p-4 space-y-3">
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="isOnSale"
+            checked={form.isOnSale}
+            onChange={(e) => setForm({ ...form, isOnSale: e.target.checked })}
+            className="rounded"
+          />
+          <label htmlFor="isOnSale" className="text-sm font-medium text-gray-300 cursor-pointer">
+            تفعيل سعر الخصم
+          </label>
+        </div>
+        {form.isOnSale && (
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1.5">سعر الخصم (ج.م)</label>
+            <input
+              type="number"
+              inputMode="decimal"
+              className="input-field"
+              placeholder="سعر ما بعد الخصم..."
+              value={form.salePrice}
+              onChange={(e) => setForm({ ...form, salePrice: e.target.value })}
+            />
+            {form.salePrice && Number(form.salePrice) < form.price && (
+              <p className="text-xs text-green-400 mt-1">
+                خصم {Math.round((1 - Number(form.salePrice) / form.price) * 100)}%
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Categories (Multi-select) */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1.5">الفئة</label>
-        <select
-          className="input-field"
-          value={form.categoryId}
-          onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-        >
-          <option value="">بدون فئة</option>
+        <label className="block text-sm font-medium text-gray-300 mb-2">الفئات</label>
+        <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1 customize-scrollbar">
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
+            <label key={cat.id} className="flex items-center gap-2 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={form.categoryIds.includes(cat.id)}
+                onChange={() => toggleCategory(cat.id)}
+                className="rounded"
+              />
+              <span className="text-sm text-gray-300 group-hover:text-white transition-colors">
+                {cat.name}
+              </span>
+            </label>
           ))}
-        </select>
+        </div>
+        {form.categoryIds.length === 0 && (
+          <p className="text-xs text-gray-600 mt-1">لم يتم اختيار أي فئة</p>
+        )}
       </div>
 
       {/* Actions */}
