@@ -38,39 +38,69 @@ export default function BrandMarquee() {
 
   const hasLogos = logos.length > 0;
 
-  // Duplicate items for seamless infinite loop
-  const items = hasLogos ? [...logos, ...logos] : [...FALLBACK_BRANDS, ...FALLBACK_BRANDS];
+  const baseItems = hasLogos ? logos : FALLBACK_BRANDS;
 
   return (
-    <div className="w-full overflow-hidden py-6 relative">
-      {/* Fade edges */}
-      <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
+    <div className="w-full overflow-hidden py-10 relative bg-slate-50 border-y border-slate-100/60">
+      {/* Decorative gradient edges for smooth fading */}
+      <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
 
-      <div className="flex animate-marquee gap-8 w-max">
-        {items.map((item, i) => (
-          <div
-            key={i}
-            className="flex items-center justify-center shrink-0 px-6 py-3 bg-white rounded-2xl border border-slate-100 shadow-[0_2px_12px_rgb(0,0,0,0.04)] hover:shadow-[0_4px_20px_rgb(0,0,0,0.08)] transition-shadow duration-300 group"
-            style={{ minWidth: hasLogos ? 100 : "auto" }}
-          >
-            {hasLogos ? (
-              <div className="relative w-20 h-10">
-                <Image
-                  src={(item as BrandLogo).logoUrl}
-                  alt={item.name}
-                  fill
-                  className="object-contain"
-                  unoptimized
-                />
-              </div>
-            ) : (
-              <span className="text-base font-black text-slate-700 group-hover:text-brand-navy transition-colors whitespace-nowrap tracking-tight">
-                {item.name}
-              </span>
-            )}
-          </div>
-        ))}
+      {/* The animated wrapper moves 50% left infinitely */}
+      <div className="flex w-max animate-marquee hover:[animation-play-state:paused] group">
+        
+        {/* Track 1 */}
+        <div className="flex gap-8 pl-8">
+          {baseItems.map((item, i) => (
+            <div
+              key={`t1-${i}`}
+              className="flex items-center justify-center shrink-0 px-8 py-4 bg-white rounded-2xl shadow-[0_4px_16px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgb(0,0,0,0.08)] transition-all duration-300 w-[180px] h-[80px]"
+            >
+              {hasLogos ? (
+                <div className="relative w-full h-full grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100">
+                  <Image
+                    src={(item as BrandLogo).logoUrl}
+                    alt={item.name}
+                    fill
+                    className="object-contain"
+                    unoptimized
+                  />
+                </div>
+              ) : (
+                <span className="text-lg flex items-center h-full justify-center text-center font-black text-slate-400 group-hover:text-brand-navy transition-colors whitespace-nowrap tracking-tight">
+                  {item.name}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Track 2 (Duplicate for seamless loop) */}
+        <div className="flex gap-8 pl-8" aria-hidden="true">
+          {baseItems.map((item, i) => (
+            <div
+              key={`t2-${i}`}
+              className="flex items-center justify-center shrink-0 px-8 py-4 bg-white rounded-2xl shadow-[0_4px_16px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgb(0,0,0,0.08)] transition-all duration-300 w-[180px] h-[80px]"
+            >
+              {hasLogos ? (
+                <div className="relative w-full h-full grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100">
+                  <Image
+                    src={(item as BrandLogo).logoUrl}
+                    alt={item.name}
+                    fill
+                    className="object-contain"
+                    unoptimized
+                  />
+                </div>
+              ) : (
+                <span className="text-lg flex items-center h-full justify-center text-center font-black text-slate-400 group-hover:text-brand-navy transition-colors whitespace-nowrap tracking-tight">
+                  {item.name}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );
