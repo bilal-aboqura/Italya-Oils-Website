@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
 const FALLBACK_BRANDS = [
   { name: "Mobil 1" },
@@ -15,13 +16,25 @@ const FALLBACK_BRANDS = [
 ];
 
 export default async function BrandMarquee() {
+  noStore(); // Force Next.js to not cache this component
+
   const logos = await prisma.brandLogo.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: "asc" },
   });
 
   const hasLogos = logos.length > 0;
-  const baseItems = hasLogos ? logos : FALLBACK_BRANDS;
+  
+  // Start with the items you want to display
+  let displayItems = hasLogos ? logos : FALLBACK_BRANDS;
+
+  // Multiply the items until we have enough to fill an ultra-wide screen (at least 20 items = ~4000px track width)
+  // This guarantees that the 50% translation will never end before the loop resets
+  while (displayItems.length < 20) {
+    displayItems = [...displayItems, ...displayItems];
+  }
+
+  const baseItems = displayItems;
 
   return (
     <div className="w-full overflow-hidden py-10 relative bg-slate-50 border-y border-slate-100/60">
