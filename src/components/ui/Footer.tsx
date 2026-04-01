@@ -15,9 +15,9 @@ export default function Footer() {
               وجهتك الأولى للزيوت والمحركات العالمية. جودة أصلية وأداء مضمون.
             </p>
             <div className="flex flex-col gap-2 text-sm text-slate-500 mt-2">
-              <a href="tel:+201551557340" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
+              <a href="tel:+201551557340" dir="ltr" className="flex items-center gap-2 hover:text-brand-orange transition-colors">
                 <span className="material-symbols-outlined text-base">phone</span>
-                +20 155 155 7340
+                <span dir="ltr">+20 155 155 7340</span>
               </a>
               <a
                 href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "201551557340"}`}
