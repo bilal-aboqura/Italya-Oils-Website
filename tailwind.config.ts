@@ -33,6 +33,15 @@ const config: Config = {
           "0 20px 25px -5px rgba(249, 115, 22, 0.15), 0 8px 10px -6px rgba(249, 115, 22, 0.1)",
         card: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05)",
       },
+      keyframes: {
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(calc(-100% - 3rem))" },
+        },
+      },
+      animation: {
+        marquee: "marquee 30s linear infinite",
+      },
       maxWidth: {
         content: "1400px",
       },

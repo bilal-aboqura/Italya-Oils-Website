@@ -9,7 +9,7 @@ import Logo from "@/components/ui/Logo";
 import CountdownBanner from "@/components/ui/CountdownBanner";
 import Footer from "@/components/ui/Footer";
 import ReviewsSection from "@/components/ui/ReviewsSection";
-// import BrandMarquee from "@/components/ui/BrandMarquee";
+import BrandLogosBanner from "@/components/ui/BrandLogosBanner";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60; // ISR: rebuild in background every 60 seconds
@@ -48,7 +48,7 @@ export default async function StorefrontPage({
   };
 
   // Fetch categories and brands
-  const [categoriesRaw, brandsRaw, countdownBanner] = await Promise.all([
+  const [categoriesRaw, brandsRaw, countdownBanner, brandLogos] = await Promise.all([
     prisma.category.findMany({
       orderBy: { sortOrder: "asc" },
       include: {
@@ -65,6 +65,11 @@ export default async function StorefrontPage({
       orderBy: { brand: "asc" },
     }),
     prisma.countdownBanner.findFirst({ where: { isActive: true }, orderBy: { createdAt: "desc" } }),
+    prisma.brandLogo.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: "asc" },
+      select: { id: true, name: true, logoUrl: true },
+    }),
   ]);
 
   // For the grid we want the imageUrl from the categories or its first product with an image
@@ -313,7 +318,7 @@ export default async function StorefrontPage({
         <PromoCarousel placement="home_middle" aspectRatio="21/5" fullWidth={true} />
 
         {/* ── BRAND LOGOS MARQUEE ──────────────── */}
-        {/* <BrandMarquee /> */}
+        <BrandLogosBanner logos={brandLogos.map(l => ({ id: l.id, name: l.name, imageUrl: l.logoUrl }))} />
 
 
         {/* Trust/CTA sections removed */}
