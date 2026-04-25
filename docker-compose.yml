@@ -27,8 +27,10 @@ services:
     networks:
       - app-network
     command: >
-      mongosh --host italyaoils_mongo:27017 --eval
-      "try { rs.status().ok === 1 ? print('RS already initialised') : rs.initiate({_id:'rs0',members:[{_id:0,host:'italyaoils_mongo:27017'}]}) } catch(e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'italyaoils_mongo:27017'}]}) }"
+      mongosh --host localhost:27017 --eval
+      "var initiated = false; try { rs.status(); initiated = true; } catch(e) { initiated = false; }
+       if (!initiated) { rs.initiate({_id:'rs0',members:[{_id:0,host:'italyaoils_mongo:27017'}]}); print('Initiated RS'); }
+       else { var cfg=rs.conf(); if(cfg.members[0].host !== 'italyaoils_mongo:27017') { cfg.members[0].host='italyaoils_mongo:27017'; rs.reconfig(cfg,{force:true}); print('Reconfigured RS host'); } else { print('RS already correct'); } }"
 
   web:
     build:
