@@ -27,10 +27,21 @@ services:
     networks:
       - app-network
     command: >
-      mongosh --host localhost:27017 --eval
-      "var initiated = false; try { rs.status(); initiated = true; } catch(e) { initiated = false; }
-       if (!initiated) { rs.initiate({_id:'rs0',members:[{_id:0,host:'italyaoils_mongo:27017'}]}); print('Initiated RS'); }
-       else { var cfg=rs.conf(); if(cfg.members[0].host !== 'italyaoils_mongo:27017') { cfg.members[0].host='italyaoils_mongo:27017'; rs.reconfig(cfg,{force:true}); print('Reconfigured RS host'); } else { print('RS already correct'); } }"
+      mongosh --host italyaoils_mongo:27017 --directConnection --eval
+      "var st; try { st = rs.status(); } catch(e) { st = null; }
+       if (!st || st.ok !== 1) {
+         rs.initiate({_id:'rs0',members:[{_id:0,host:'italyaoils_mongo:27017'}]});
+         print('RS initiated');
+       } else {
+         var cfg = rs.conf();
+         if (cfg.members[0].host !== 'italyaoils_mongo:27017') {
+           cfg.members[0].host = 'italyaoils_mongo:27017';
+           rs.reconfig(cfg, {force:true});
+           print('RS host corrected to italyaoils_mongo:27017');
+         } else {
+           print('RS already healthy: ' + cfg.members[0].host);
+         }
+       }"
 
   web:
     build:
