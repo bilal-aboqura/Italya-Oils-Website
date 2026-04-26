@@ -29,7 +29,7 @@ services:
       - app-network
     volumes:
       - ./scripts/init-rs.js:/init-rs.js:ro
-    command: ["mongosh", "--host", "mongo:27017", "--directConnection", "--file", "/init-rs.js"]
+    command: ["mongosh", "mongodb://mongo:27017/?directConnection=true", "/init-rs.js"]
 
   web:
     build:
