@@ -27,22 +27,26 @@ services:
         condition: service_healthy
     networks:
       - app-network
-    command: >
-      mongosh --host mongo:27017 --directConnection --eval
-      "var st; try { st = rs.status(); } catch(e) { st = null; }
-       if (!st || st.ok !== 1) {
-         rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]});
-         print('RS initiated');
-       } else {
-         var cfg = rs.conf();
-         if (cfg.members[0].host !== 'mongo:27017') {
-           cfg.members[0].host = 'mongo:27017';
-           rs.reconfig(cfg, {force:true});
-           print('RS host corrected to mongo:27017');
-         } else {
-           print('RS already healthy: ' + cfg.members[0].host);
-         }
-       }"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        mongosh --host mongo:27017 --directConnection --eval '
+          var st = null;
+          try { st = rs.status(); } catch(e) {}
+          if (!st || st.ok !== 1) {
+            rs.initiate({_id:"rs0", members:[{_id:0, host:"mongo:27017"}]});
+            print("RS initiated");
+          } else {
+            var cfg = rs.conf();
+            if (cfg.members[0].host !== "mongo:27017") {
+              cfg.members[0].host = "mongo:27017";
+              rs.reconfig(cfg, {force:true});
+              print("RS host corrected to mongo:27017");
+            } else {
+              print("RS OK: " + cfg.members[0].host);
+            }
+          }
+        '
 
   web:
     build:
