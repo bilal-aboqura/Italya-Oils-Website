@@ -3,6 +3,7 @@ services:
   mongo:
     image: mongo:7.0
     container_name: italyaoils_mongo
+    hostname: mongo
     restart: unless-stopped
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     volumes:
@@ -16,7 +17,7 @@ services:
       retries: 10
       start_period: 10s
 
-  # One-shot: initialises the replica set on first boot (no-op if already done)
+  # One-shot: initialises/repairs the replica set on every deploy
   mongo-init:
     image: mongo:7.0
     container_name: italyaoils_mongo_init
@@ -27,17 +28,17 @@ services:
     networks:
       - app-network
     command: >
-      mongosh --host italyaoils_mongo:27017 --directConnection --eval
+      mongosh --host mongo:27017 --directConnection --eval
       "var st; try { st = rs.status(); } catch(e) { st = null; }
        if (!st || st.ok !== 1) {
-         rs.initiate({_id:'rs0',members:[{_id:0,host:'italyaoils_mongo:27017'}]});
+         rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]});
          print('RS initiated');
        } else {
          var cfg = rs.conf();
-         if (cfg.members[0].host !== 'italyaoils_mongo:27017') {
-           cfg.members[0].host = 'italyaoils_mongo:27017';
+         if (cfg.members[0].host !== 'mongo:27017') {
+           cfg.members[0].host = 'mongo:27017';
            rs.reconfig(cfg, {force:true});
-           print('RS host corrected to italyaoils_mongo:27017');
+           print('RS host corrected to mongo:27017');
          } else {
            print('RS already healthy: ' + cfg.members[0].host);
          }
