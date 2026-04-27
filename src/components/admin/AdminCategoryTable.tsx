@@ -273,8 +273,8 @@ export default function AdminCategoryTable({ categories: initialCategories }: Ad
 
             {/* Edit Modal */}
             {editingCategory && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setEditingCategory(null)}>
-                    <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl relative" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setEditingCategory(null)}>
+                    <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl relative z-[100]" onClick={e => e.stopPropagation()}>
                         <h2 className="text-xl font-black text-brand-navy mb-6 flex items-center gap-2">
                             <Edit2 className="w-5 h-5 text-brand-orange" />
                             تعديل التصنيف
