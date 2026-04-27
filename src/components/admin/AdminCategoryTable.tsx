@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Trash2, Edit2, Loader2, AlertCircle, UploadCloud, GripVertical } from "lucide-react";
 import Image from "next/image";
@@ -35,6 +36,11 @@ export default function AdminCategoryTable({ categories: initialCategories }: Ad
     const [savingOrder, setSavingOrder] = useState(false);
     const [dragOverId, setDragOverId] = useState<string | null>(null);
     const dragIdRef = useRef<string | null>(null);
+
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // ── Drag & Drop Handlers ────────────────────────────────────
     const handleDragStart = (id: string) => { dragIdRef.current = id; };
@@ -272,7 +278,7 @@ export default function AdminCategoryTable({ categories: initialCategories }: Ad
             </div>
 
             {/* Edit Modal */}
-            {editingCategory && (
+            {mounted && editingCategory && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setEditingCategory(null)}>
                     <div className="w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl relative z-[100]" onClick={e => e.stopPropagation()}>
                         <h2 className="text-xl font-black text-brand-navy mb-6 flex items-center gap-2">
@@ -354,7 +360,8 @@ export default function AdminCategoryTable({ categories: initialCategories }: Ad
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

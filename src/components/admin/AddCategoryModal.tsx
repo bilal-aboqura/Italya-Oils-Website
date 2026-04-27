@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Plus, X, Loader2, Tag, UploadCloud } from "lucide-react";
 import Image from "next/image";
@@ -21,6 +22,11 @@ export default function AddCategoryModal({ onCreated }: AddCategoryModalProps) {
     const [success, setSuccess] = useState<string | null>(null);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // Reset form state
     const reset = () => {
@@ -113,9 +119,9 @@ export default function AddCategoryModal({ onCreated }: AddCategoryModalProps) {
             </button>
 
             {/* ── Backdrop ─────────────────────────────────────────────────────────── */}
-            {isOpen && (
+            {mounted && isOpen && createPortal(
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 transition-all"
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all"
                     style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(2px)" }}
                     onClick={(e) => e.target === e.currentTarget && closeModal()}
                 >
@@ -125,7 +131,7 @@ export default function AddCategoryModal({ onCreated }: AddCategoryModalProps) {
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="modal-title"
-                        className="w-full max-w-md animate-fade-in shadow-2xl relative"
+                        className="w-full max-w-md animate-fade-in shadow-2xl relative z-[100]"
                         style={{
                             background: "#161722", // matches image dark background
                             borderRadius: "24px",
@@ -265,7 +271,8 @@ export default function AddCategoryModal({ onCreated }: AddCategoryModalProps) {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </>
     );
