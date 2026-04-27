@@ -240,12 +240,8 @@ export async function POST(request: NextRequest) {
         categoryMap.set(catName, cat.id);
       }
 
-      // Step 2: upsert products with ALL fields
+      // Step 2: upsert products (WITHOUT categoryId – that lives in the join table)
       const upsertOps = validProducts.map((product) => {
-        const categoryId = product.categoryName
-          ? (categoryMap.get(product.categoryName) ?? null)
-          : null;
-
         const payload = {
           name: product.name,
           price: product.price,
@@ -257,7 +253,6 @@ export async function POST(request: NextRequest) {
           itemCode: product.itemCode ?? null,
           countryOfOrigin: product.countryOfOrigin ?? null,
           unit: product.unit ?? null,
-          ...(categoryId !== null ? { categoryId } : {}),
         };
 
         return prisma.product.upsert({
@@ -277,6 +272,25 @@ export async function POST(request: NextRequest) {
           updatedCount++;
         }
       });
+
+      // Step 3: link products to categories via the ProductCategory join table
+      for (let i = 0; i < validProducts.length; i++) {
+        const product = validProducts[i];
+        const categoryId = product.categoryName
+          ? (categoryMap.get(product.categoryName) ?? null)
+          : null;
+
+        if (categoryId) {
+          const productId = results[i].id;
+          await prisma.productCategory.upsert({
+            where: {
+              productId_categoryId: { productId, categoryId },
+            },
+            update: {},
+            create: { productId, categoryId },
+          });
+        }
+      }
     }
 
     return NextResponse.json({
